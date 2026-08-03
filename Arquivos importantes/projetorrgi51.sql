@@ -42,27 +42,8 @@ INSERT INTO `categoria1` (`id`, `nome`, `ativo`) VALUES
 (2, 'Bebidas', 1),
 (3, 'Sobremesas', 1);
 
--- --------------------------------------------------------
 
---
--- Estrutura para tabela `cliente`
---
 
-CREATE TABLE `cliente` (
-  `id` int(11) NOT NULL,
-  `nome` varchar(100) NOT NULL,
-  `cpf_cnpj` varchar(20) NOT NULL,
-  `telefone` varchar(20) DEFAULT NULL,
-  `email` varchar(100) DEFAULT NULL,
-  `endereco` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Despejando dados para a tabela `cliente`
---
-
-INSERT INTO `cliente` (`id`, `nome`, `cpf_cnpj`, `telefone`, `email`, `endereco`) VALUES
-(1, 'Cliente Balcao', '00.000.000-00', '(21)90000-0000', 'balcao@cliente.com', 'Nova Iguacu - RJ');
 
 -- --------------------------------------------------------
 
@@ -73,7 +54,6 @@ INSERT INTO `cliente` (`id`, `nome`, `cpf_cnpj`, `telefone`, `email`, `endereco`
 CREATE TABLE `entrada_item` (
   `id` int(11) NOT NULL,
   `entrada_id` int(11) NOT NULL,
-  `variacao_id` int(11) NOT NULL,
   `quantidade` int(11) NOT NULL,
   `custo_unitario` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -86,7 +66,6 @@ CREATE TABLE `entrada_item` (
 
 CREATE TABLE `entrada_mercadoria` (
   `id` int(11) NOT NULL,
-  `fornecedor_id` int(11) NOT NULL,
   `data` date NOT NULL,
   `status` enum('rascunho','confirmado') NOT NULL DEFAULT 'rascunho',
   `valor_total` decimal(10,2) NOT NULL DEFAULT 0.00
@@ -100,34 +79,12 @@ CREATE TABLE `entrada_mercadoria` (
 
 CREATE TABLE `estoque` (
   `id` int(11) NOT NULL,
-  `variacao_id` int(11) NOT NULL,
   `quantidade` int(11) NOT NULL DEFAULT 0,
   `minimo` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
---
--- Estrutura para tabela `fornecedor`
---
-
-CREATE TABLE `fornecedor` (
-  `id` int(11) NOT NULL,
-  `nome` varchar(100) NOT NULL,
-  `cnpj` varchar(20) NOT NULL,
-  `telefone` varchar(20) DEFAULT NULL,
-  `email` varchar(100) DEFAULT NULL,
-  `endereco` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Despejando dados para a tabela `fornecedor`
---
-
-INSERT INTO `fornecedor` (`id`, `nome`, `cnpj`, `telefone`, `email`, `endereco`) VALUES
-(1, 'Panela Velha 🍲', '12.345.678/0001-90', '(21)99999-1111', 'contato@panelavelha.com', 'Rio de janeiro - RJ');
-
--- --------------------------------------------------------
 
 --
 -- Estrutura para tabela `movimento_estoque`
@@ -135,7 +92,6 @@ INSERT INTO `fornecedor` (`id`, `nome`, `cnpj`, `telefone`, `email`, `endereco`)
 
 CREATE TABLE `movimento_estoque` (
   `id` int(11) NOT NULL,
-  `variacao_id` int(11) NOT NULL,
   `tipo` enum('entrada','venda') NOT NULL,
   `quantidade` int(11) NOT NULL,
   `origem` enum('entrada','saida') NOT NULL,
@@ -143,38 +99,6 @@ CREATE TABLE `movimento_estoque` (
   `data` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
-
---
--- Estrutura para tabela `nota_fiscal_entrada`
---
-
-CREATE TABLE `nota_fiscal_entrada` (
-  `id` int(11) NOT NULL,
-  `entrada_id` int(11) NOT NULL,
-  `modelo` varchar(5) NOT NULL,
-  `serie` varchar(5) NOT NULL,
-  `numero` varchar(10) NOT NULL,
-  `chave_acesso` varchar(44) NOT NULL,
-  `data_emissao` date NOT NULL,
-  `valor_total` decimal(10,2) NOT NULL DEFAULT 0.00
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Estrutura para tabela `nota_fiscal_venda`
---
-
-CREATE TABLE `nota_fiscal_venda` (
-  `id` int(11) NOT NULL,
-  `venda_id` int(11) NOT NULL,
-  `modelo` varchar(5) NOT NULL,
-  `serie` varchar(5) NOT NULL,
-  `numero` varchar(10) NOT NULL,
-  `data_emissao` date NOT NULL,
-  `valor_total` decimal(10,2) NOT NULL DEFAULT 0.00
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -221,7 +145,7 @@ CREATE TABLE `usuario` (
   `nome` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL,
   `senha` varchar(255) NOT NULL,
-  `perfil` enum('gerente','garçom','cliente') NOT NULL,
+  `perfil` enum('gerente','garçom',) NOT NULL,
   `ativo` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -234,49 +158,11 @@ INSERT INTO `usuario` (`id`, `nome`, `email`, `senha`, `perfil`, `ativo`) VALUES
 (2, 'Chefe Mario', 'chefe@comida.com', '$2y$10$V7a54RYRJUUjJrciW9KEa.b120fv4NRTXj1KN0FiPpjH2m2zoQisu', 'gerente', 1),
 (3, 'cleitin', 'pcmedio9@3dcolegios.com', '$2y$10$ltpTrG3AlO6haZXCLMdVG.tUYQt1JhoHi.8R2cBPxoj9iaKl6yDQW', 'garçom', 1),
 (4, 'john cena', 'john.cena@gmail.com', '$2y$10$IDstDwfS/Xu626Yobo7vbuxyHErEfg..nL8LALZkvieCj6WIwuzBS', 'garçom', 1),
-(8, 'Joh Pork', 'pcmedio09@gmail.com', '$2y$10$qMdJ8z1370CcCWZWvbZ3DORdQGTJKAxX7qonh5wsy8i0Jd4Uqj0k2', 'cliente', 1),
-(9, 'ASD', 'pcmedio19@gmail.com', '$2y$10$MQLzReBfNTkUqlWL8.H7M.6h9lk7BWvqaKjC0fpxMy76k6EsAEHQO', 'cliente', 1),
-(10, 'assd', 'pcmedio199@gmail.com', '$2y$10$Y7YlrRE7rP0CXOsQgTT0nOPrlYdXO1HHa5hzB4Vy0Jc3bFeG5IKri', 'cliente', 1);
+(8, 'Joh Pork', 'pcmedio09@gmail.com', '$2y$10$qMdJ8z1370CcCWZWvbZ3DORdQGTJKAxX7qonh5wsy8i0Jd4Uqj0k2', 'garçom', 1),
+(9, 'ASD', 'pcmedio19@gmail.com', '$2y$10$MQLzReBfNTkUqlWL8.H7M.6h9lk7BWvqaKjC0fpxMy76k6EsAEHQO', 'garçom', 1),
+(10, 'assd', 'pcmedio199@gmail.com', '$2y$10$Y7YlrRE7rP0CXOsQgTT0nOPrlYdXO1HHa5hzB4Vy0Jc3bFeG5IKri', 'garçom', 1);
 
--- --------------------------------------------------------
 
---
--- Estrutura para tabela `variacao`
---
-
-CREATE TABLE `variacao` (
-  `id` int(11) NOT NULL,
-  `produto_id` int(11) NOT NULL,
-  `TAMANHO` varchar(10) NOT NULL,
-  `preco` decimal(10,2) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Despejando dados para a tabela `variacao`
---
-
-INSERT INTO `variacao` (`id`, `produto_id`, `TAMANHO`, `preco`) VALUES
-(1, 1, 'P', 12.00),
-(2, 1, 'M', 16.00),
-(3, 1, 'G', 20.00),
-(4, 2, 'G', 20.00),
-(5, 2, 'M', 16.00),
-(6, 2, 'P', 12.00),
-(7, 7, 'P', 12.00),
-(8, 7, 'M', 16.00),
-(9, 7, 'G', 20.00),
-(10, 3, '500ml', 6.50),
-(11, 3, '1.5 Litros', 10.50),
-(12, 3, '2 Litros', 13.50),
-(13, 4, '1.5 Litros', 10.50),
-(14, 4, '650ml', 6.50),
-(15, 4, '750ml', 8.50),
-(16, 5, '650ml', 6.50),
-(17, 5, '750ml', 8.50),
-(18, 5, '1.5 Litros', 10.50),
-(19, 8, '1.5 Litros', 9.50),
-(20, 8, '2 Litros', 11.00),
-(21, 8, '500ml', 5.00);
 
 -- --------------------------------------------------------
 
@@ -317,11 +203,6 @@ CREATE TABLE `venda_item` (
 ALTER TABLE `categoria1`
   ADD PRIMARY KEY (`id`);
 
---
--- Índices de tabela `cliente`
---
-ALTER TABLE `cliente`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- Índices de tabela `entrada_item`
@@ -348,12 +229,6 @@ ALTER TABLE `estoque`
   ADD UNIQUE KEY `variacao_id` (`variacao_id`);
 
 --
--- Índices de tabela `fornecedor`
---
-ALTER TABLE `fornecedor`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Índices de tabela `movimento_estoque`
 --
 ALTER TABLE `movimento_estoque`
@@ -362,24 +237,6 @@ ALTER TABLE `movimento_estoque`
   ADD KEY `idx_mov_data` (`data`),
   ADD KEY `idx_mov_origem` (`origem`,`origem_id`),
   ADD KEY `idx_mov_tipo` (`tipo`);
-
---
--- Índices de tabela `nota_fiscal_entrada`
---
-ALTER TABLE `nota_fiscal_entrada`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `entrada_id` (`entrada_id`),
-  ADD UNIQUE KEY `chave_acesso` (`chave_acesso`),
-  ADD KEY `idx_nf_entrada_data` (`data_emissao`);
-
---
--- Índices de tabela `nota_fiscal_venda`
---
-ALTER TABLE `nota_fiscal_venda`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `venda_id` (`venda_id`),
-  ADD UNIQUE KEY `numero` (`numero`),
-  ADD KEY `idx_nf_venda_data` (`data_emissao`);
 
 --
 -- Índices de tabela `produto`
@@ -431,12 +288,6 @@ ALTER TABLE `categoria1`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT de tabela `cliente`
---
-ALTER TABLE `cliente`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
 -- AUTO_INCREMENT de tabela `entrada_item`
 --
 ALTER TABLE `entrada_item`
@@ -455,28 +306,11 @@ ALTER TABLE `estoque`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de tabela `fornecedor`
---
-ALTER TABLE `fornecedor`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
 -- AUTO_INCREMENT de tabela `movimento_estoque`
 --
 ALTER TABLE `movimento_estoque`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
---
--- AUTO_INCREMENT de tabela `nota_fiscal_entrada`
---
-ALTER TABLE `nota_fiscal_entrada`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `nota_fiscal_venda`
---
-ALTER TABLE `nota_fiscal_venda`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de tabela `produto`
@@ -538,30 +372,12 @@ ALTER TABLE `movimento_estoque`
   ADD CONSTRAINT `fk_movimento_variacao` FOREIGN KEY (`variacao_id`) REFERENCES `variacao` (`id`) ON UPDATE CASCADE;
 
 --
--- Restrições para tabelas `nota_fiscal_entrada`
---
-ALTER TABLE `nota_fiscal_entrada`
-  ADD CONSTRAINT `fk_nf_entrada_entrada` FOREIGN KEY (`entrada_id`) REFERENCES `entrada_mercadoria` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Restrições para tabelas `nota_fiscal_venda`
---
-ALTER TABLE `nota_fiscal_venda`
-  ADD CONSTRAINT `fk_nf_venda_venda` FOREIGN KEY (`venda_id`) REFERENCES `venda` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
 -- Restrições para tabelas `produto`
 --
 ALTER TABLE `produto`
   ADD CONSTRAINT `fk_produto_categoria` FOREIGN KEY (`categoria_id`) REFERENCES `categoria1` (`id`) ON UPDATE CASCADE;
 
---
--- Restrições para tabelas `variacao`
---
-ALTER TABLE `variacao`
-  ADD CONSTRAINT `fk_variacao_produto` FOREIGN KEY (`produto_id`) REFERENCES `produto` (`id`) ON UPDATE CASCADE;
 
---
 -- Restrições para tabelas `venda`
 --
 ALTER TABLE `venda`
@@ -576,6 +392,3 @@ ALTER TABLE `venda_item`
   ADD CONSTRAINT `fk_venda_item_venda` FOREIGN KEY (`venda_id`) REFERENCES `venda` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
