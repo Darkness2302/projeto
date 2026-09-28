@@ -50,6 +50,11 @@ switch ($controller) {
          $c = new CategoriaController();
         break;
 
+    case 'fornecedor':
+        require_once __DIR__ . '/controllers/fornecedorcontroller.php';
+        $c = new FornecedorController();
+        break;
+
 
     // Caminho padrão caso o controller não exista
     default:

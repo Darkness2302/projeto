@@ -10,6 +10,12 @@ function imagemProdutoUrl(int $produtoId): string
     }
     return "public/assets/img/produto_sem_foto.png";
 }
+
+function precoFormatado(?float $preco): string
+{
+    $preco = $preco ?? 0;
+    return 'R$ ' . number_format($preco, 2, ',', '.');
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -32,94 +38,111 @@ function imagemProdutoUrl(int $produtoId): string
       --white:    #ffffff;
       --black:    #111111;
       --divider:  #c8c8c8;
+      --red:      #fc2c2f;
+      --orange:   #fd9c4d;
+      --green-ok: #d4edda;
     }
     body { font-family:'Inter',sans-serif; background:var(--white); color:var(--black); min-height:100vh; }
 
     /* HEADER */
-    .site-header { display:flex; align-items:center; padding:20px 48px 16px 40px; }
+    .site-header { display:flex; align-items:center; padding:20px 48px 16px 40px; gap:24px; }
     .header-logo { width:112px; height:auto; flex-shrink:0; }
     .header-right { flex:1; display:flex; flex-direction:column; align-items:center; gap:14px; }
     .header-title { font-size:1.85rem; font-weight:500; color:var(--black); text-align:center; }
-    .nav-pills { display:flex; gap:16px; align-items:center; }
+    .nav-pills { display:flex; gap:16px; align-items:center; flex-wrap:wrap; justify-content:center; }
     .nav-pills a { display:inline-block; padding:7px 36px; background:linear-gradient(90deg, var(--green) 60%, var(--green-dk) 100%); color:var(--black); font-weight:600; font-size:1.2rem; text-decoration:none; border-radius:200px; transition:opacity .15s, transform .15s; }
     .nav-pills a:hover { opacity:.82; transform:translateY(-2px); }
     .nav-pills a.active { background:linear-gradient(90deg, var(--green-dk) 0%, #2d3620 100%); color:#fff; }
     .h-divider { height:1px; background:var(--divider); }
 
-    /* FORM SECTION */
-    .form-section { padding:28px 56px 24px; }
-    .form-card { background:#f9f6f4; border-radius:15px; padding:32px 36px; }
-    .form-card h2 { font-size:1.4rem; font-weight:600; color:var(--black); margin-bottom:22px; }
-    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px 28px; }
-    .form-grid.full { grid-template-columns:1fr; }
-    .field { display:flex; flex-direction:column; gap:6px; }
-    .field label { font-size:1rem; font-weight:500; color:var(--black); }
-    .field input, .field select, .field textarea {
-      background:var(--green); border:none; border-radius:9px;
-      box-shadow:0 3px 4px rgba(0,0,0,.15); padding:12px 18px;
-      font-family:'Inter',sans-serif; font-size:1rem; color:#333; outline:none; width:100%;
-      transition:background .2s, box-shadow .2s;
+    /* TOOLBAR (não faz parte do Figma original — adicionado para permitir cadastrar novo produto) */
+    .toolbar { display:flex; justify-content:flex-end; padding:22px 56px 0; }
+    .btn-novo {
+      display:inline-flex; align-items:center; gap:8px; padding:12px 28px;
+      background:linear-gradient(90deg, var(--green) 60%, var(--green-dk) 100%);
+      border-radius:200px; font-weight:600; font-size:1rem; color:#111; text-decoration:none;
+      box-shadow:0 3px 6px rgba(0,0,0,.18); transition:opacity .15s, transform .12s;
     }
-    .field input::placeholder, .field textarea::placeholder { color:var(--gray-ph); }
-    .field input:focus, .field select:focus, .field textarea:focus { background:#b5ce97; box-shadow:0 3px 10px rgba(80,92,65,.3); }
-    .field input[type="file"] { background:#e5f0d8; padding:10px 14px; }
-    .field small { font-size:.85rem; color:#666; }
-    .form-actions { display:flex; gap:14px; margin-top:22px; }
-    .btn-salvar {
-      padding:12px 32px; background:linear-gradient(90deg, var(--green) 60%, var(--green-dk) 100%);
-      border:none; border-radius:200px; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600;
-      color:#111; cursor:pointer; box-shadow:0 3px 6px rgba(0,0,0,.2); transition:opacity .15s, transform .12s;
-    }
-    .btn-salvar:hover { opacity:.88; transform:translateY(-1px); }
-    .btn-limpar { padding:12px 32px; background:var(--salmon); border:none; border-radius:200px; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; color:#111; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; transition:opacity .15s; }
-    .btn-limpar:hover { opacity:.8; }
+    .btn-novo:hover { opacity:.88; transform:translateY(-1px); }
 
-    /* TABLE */
-    .table-wrap { padding:8px 56px 64px; overflow-x:auto; }
-    .stock-table {
-      width:100%; min-width:900px; display:grid;
-      grid-template-columns: 180px 1fr 220px 120px 230px;
-      column-gap:16px;
+    /* TABLE HEADER */
+    .table-wrap { padding:20px 56px 64px; }
+    .table-head {
+      display:grid;
+      grid-template-columns: 230px 1fr 1fr 220px;
+      gap:16px;
+      margin-bottom: 22px;
+    }
+    .th { background:var(--salmon); border:1px solid #000; border-radius:5px; padding:14px 18px; font-size:1.15rem; font-weight:400; color:var(--black); display:flex; align-items:center; }
+    .th-detalhes { grid-column: 3 / 5; justify-content:center; }
+
+    /* PRODUCT CARD ROW */
+    .produto-row {
+      display:grid;
+      grid-template-columns: 230px 1fr 1fr 220px;
+      grid-template-rows: auto auto auto;
+      gap:12px 16px;
+      margin-bottom: 30px;
+      align-items:stretch;
     }
 
-    /* HEADER ROW */
-    .th { background:var(--salmon); border-radius:5px; padding:12px 16px; font-size:1.1rem; font-weight:400; color:var(--black); margin-bottom:18px; display:flex; align-items:center; }
-    .th-estoque { grid-column: 3 / 6; justify-content:center; }
-
-    /* PRODUCT ROW */
-    .row { display:contents; }
-    .row > * { margin-bottom:14px; }
-
-    .cell-img { background:var(--gray-img); height:130px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+    .cell-img {
+      grid-column: 1;
+      grid-row: 1 / 3;
+      background:var(--gray-img); border:1px solid #000;
+      display:flex; align-items:center; justify-content:center; overflow:hidden;
+      min-height: 194px;
+    }
     .cell-img img { width:100%; height:100%; object-fit:cover; }
 
-    .cell-name { display:flex; flex-direction:column; gap:8px; justify-content:center; }
-    .badge-name { background:var(--salmon); border-radius:5px; padding:12px 16px; font-size:1rem; font-weight:400; color:var(--black); min-height:52px; display:flex; align-items:center; }
-    .link-edit { font-size:1.05rem; font-weight:800; color:var(--teal); text-decoration:none; transition:opacity .15s; }
-    .link-edit:hover { opacity:.7; text-decoration:underline; }
+    .badge {
+      background:var(--salmon); border:1px solid #000; border-radius:5px;
+      padding:14px 18px; font-size:1.1rem; font-weight:400; color:var(--black);
+      display:flex; align-items:center; min-height:56px;
+    }
 
-    .cell-cat, .cell-status { display:flex; align-items:center; }
-    .badge-cat { background:var(--salmon); border-radius:5px; padding:12px 16px; font-size:.95rem; color:var(--black); width:100%; min-height:52px; display:flex; align-items:center; }
+    .badge-nome     { grid-column: 2; grid-row: 1; font-weight:600; }
+    .badge-estoque  { grid-column: 2; grid-row: 2; }
+    .badge-status   { grid-column: 3; grid-row: 1; }
+    .badge-preco    { grid-column: 3; grid-row: 2; }
 
-    .tag-ativo   { background:#d4edda; color:#155724; border-radius:5px; padding:6px 12px; font-size:.9rem; font-weight:600; }
-    .tag-inativo { background:#f8d7da; color:#721c24; border-radius:5px; padding:6px 12px; font-size:.9rem; font-weight:600; }
+    .badge-status.ativo   { background:var(--green-ok); color:#155724; }
+    .badge-status.inativo { background:#f8d7da; color:#721c24; }
 
-    .cell-acoes { display:flex; flex-direction:column; gap:6px; justify-content:center; }
-    .btn-inativar { padding:7px 14px; background:var(--salmon); border:none; border-radius:8px; font-size:.85rem; font-weight:600; color:#7a3b00; cursor:pointer; text-decoration:none; text-align:center; transition:opacity .15s; }
-    .btn-inativar:hover { opacity:.8; }
-    .btn-ativar { padding:7px 14px; background:#d4edda; border:none; border-radius:8px; font-size:.85rem; font-weight:600; color:#155724; cursor:pointer; text-decoration:none; text-align:center; transition:opacity .15s; }
-    .btn-ativar:hover { opacity:.8; }
-    .btn-excluir { padding:7px 14px; background:#f8d7da; border:none; border-radius:8px; font-size:.85rem; font-weight:600; color:#721c24; cursor:pointer; text-decoration:none; text-align:center; transition:opacity .15s; }
-    .btn-excluir:hover { opacity:.8; }
+    .btn-acao {
+      border:1px solid #000; border-radius:5px; padding:14px 18px;
+      font-size:1.1rem; font-weight:400; color:var(--black); text-align:center;
+      text-decoration:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
+      min-height:56px; transition:opacity .15s;
+    }
+    .btn-acao:hover { opacity:.82; }
 
-    @media (max-width:860px) {
-      .site-header { padding:16px 20px; }
+    .btn-inativar { grid-column: 4; grid-row: 1; background:var(--orange); }
+    .btn-ativar   { grid-column: 4; grid-row: 1; background:var(--green-ok); color:#155724; }
+    .btn-excluir  { grid-column: 4; grid-row: 2; background:var(--red); }
+
+    .link-editar {
+      grid-column: 2;
+      grid-row: 3;
+      font-size:1.2rem; font-weight:800; color:var(--teal); text-decoration:none;
+      transition:opacity .15s;
+    }
+    .link-editar:hover { opacity:.7; text-decoration:underline; }
+
+    .empty-msg { padding:40px; text-align:center; color:#777; font-size:1.1rem; }
+
+    @media (max-width:900px) {
+      .site-header { padding:16px 20px; flex-direction:column; }
       .table-wrap  { padding:20px 16px 48px; }
-      .form-section { padding:20px 16px 16px; }
+      .toolbar     { padding:16px 16px 0; }
       .header-title { font-size:1.3rem; }
       .nav-pills a  { font-size:.95rem; padding:6px 20px; }
-      .stock-table  { grid-template-columns:100px 1fr 120px 80px 160px; column-gap:8px; min-width:540px; }
-      .form-grid    { grid-template-columns:1fr; }
+      .table-head  { grid-template-columns: 90px 1fr 1fr 1fr; }
+      .th          { font-size:.85rem; padding:8px; }
+      .produto-row { grid-template-columns: 90px 1fr 1fr 1fr; }
+      .cell-img    { min-height: 110px; }
+      .badge, .btn-acao { font-size:.85rem; padding:8px; min-height:44px; }
+      .link-editar { font-size:.95rem; }
     }
   </style>
 </head>
@@ -134,115 +157,71 @@ function imagemProdutoUrl(int $produtoId): string
         Bem-vindo <?= htmlspecialchars($_SESSION['nome'] ?? 'Usuário') ?> ao nosso estoque!
       </h1>
       <nav class="nav-pills">
-        <a href="/projetobernardolohana/index.php?controller=auth&action=dashboard">Menu</a>
-        <a href="/projetobernardolohana/index.php?controller=produto&action=index" class="active">Estoque</a>
-        <a href="/projetobernardolohana/index.php?controller=venda&action=index">Pedidos</a>
+        <a href="index.php?controller=auth&action=dashboard">Menu</a>
+        <a href="index.php?controller=fornecedor&action=index">Fornecedores</a>
+        <a href="index.php?controller=produto&action=index" class="active">Estoque</a>
+        <a href="index.php?controller=venda&action=index">Pedidos</a>
       </nav>
     </div>
   </header>
 
   <div class="h-divider"></div>
 
-  <!-- ══ FORM: CADASTRAR / EDITAR PRODUTO ══ -->
-  <div class="form-section">
-    <div class="form-card">
-      <h2><?= $editar ? 'Editar Produto #' . (int)$editar['id'] : 'Cadastrar Novo Produto' ?></h2>
-      <form method="post" action="index.php?controller=produto&action=salvar" enctype="multipart/form-data">
-        <input type="hidden" name="id" value="<?= $editar ? (int)$editar['id'] : 0 ?>">
-        <div class="form-grid">
-          <div class="field">
-            <label>Categoria</label>
-            <select name="categoria_id" required>
-              <option value="">Selecione...</option>
-              <?php foreach ($categorias as $c): ?>
-                <option value="<?= (int)$c['id'] ?>"
-                  <?= $editar && (int)$editar['categoria_id'] === (int)$c['id'] ? 'selected' : '' ?>>
-                  <?= htmlspecialchars($c['nome']) ?>
-                </option>
-              <?php endforeach; ?>
-            </select>
-          </div>
-          <div class="field">
-            <label>Nome do Produto</label>
-            <input type="text" name="nome" required placeholder="Nome do produto"
-                   value="<?= $editar ? htmlspecialchars($editar['nome']) : '' ?>" />
-          </div>
-          <div class="field">
-            <label>Descrição (opcional)</label>
-            <textarea name="descricao" rows="2" placeholder="Descrição do produto"><?= $editar ? htmlspecialchars($editar['descricao'] ?? '') : '' ?></textarea>
-          </div>
-          <div class="field">
-            <label>Imagem (opcional)</label>
-            <input type="file" name="imagem" accept="image/png, image/jpeg, image/webp" />
-            <small>JPG, PNG ou WEBP — até 2 MB</small>
-          </div>
-        </div>
-        <div class="form-actions">
-          <button type="submit" class="btn-salvar">Salvar</button>
-          <a href="index.php?controller=produto&action=index" class="btn-limpar">Limpar</a>
-        </div>
-      </form>
-    </div>
+  <!-- Botão para cadastrar novo produto: envia para a página dedicada (node 394:308) -->
+  <div class="toolbar">
+    <a class="btn-novo" href="index.php?controller=produto&action=form">+ Novo Produto</a>
   </div>
 
-  <div class="h-divider" style="margin:4px 0;"></div>
-
-  <!-- ══ TABLE ══ -->
   <div class="table-wrap">
-    <div class="stock-table">
 
-      <!-- HEADER ROW -->
+    <!-- HEADER ROW -->
+    <div class="table-head">
       <div class="th">Imagem Prod.</div>
       <div class="th">Nome do Produto</div>
-      <div class="th th-estoque">Detalhes (Categoria · Status · Ações)</div>
+      <div class="th th-detalhes">Detalhes</div>
+    </div>
 
-      <!-- PRODUCT ROWS -->
+    <?php if (empty($produtos)): ?>
+      <div class="empty-msg">Nenhum produto cadastrado ainda.</div>
+    <?php else: ?>
       <?php foreach ($produtos as $p): ?>
-        <div class="row">
+        <div class="produto-row">
 
           <div class="cell-img">
             <img src="<?= htmlspecialchars(imagemProdutoUrl((int)$p['id'])) ?>"
                  alt="<?= htmlspecialchars($p['nome']) ?>" />
           </div>
 
-          <div class="cell-name">
-            <div class="badge-name"><?= htmlspecialchars($p['nome']) ?></div>
-            <a class="link-edit"
-               href="index.php?controller=produto&action=index&id=<?= (int)$p['id'] ?>">
-              Editar Produto
-            </a>
-          </div>
+          <div class="badge badge-nome"><?= htmlspecialchars($p['nome']) ?></div>
+          <div class="badge badge-estoque">Estoque: <?= (int)($p['estoque_qtd'] ?? 0) ?> un.</div>
 
-          <div class="cell-cat">
-            <div class="badge-cat"><?= htmlspecialchars($p['categoria_nome']) ?></div>
+          <div class="badge badge-status <?= (int)$p['ativo'] === 1 ? 'ativo' : 'inativo' ?>">
+            <?= (int)$p['ativo'] === 1 ? 'Ativo' : 'Inativo' ?>
           </div>
+          <div class="badge badge-preco"><?= precoFormatado($p['preco'] ?? null) ?></div>
 
-          <div class="cell-status">
-            <?php if ((int)$p['ativo'] === 1): ?>
-              <span class="tag-ativo">Ativo</span>
-            <?php else: ?>
-              <span class="tag-inativo">Inativo</span>
-            <?php endif; ?>
-          </div>
+          <?php if ((int)$p['ativo'] === 1): ?>
+            <a class="btn-acao btn-inativar"
+               href="index.php?controller=produto&action=toggle&id=<?= (int)$p['id'] ?>&ativo=0"
+               onclick="return confirm('Inativar este produto?')">Inativar</a>
+          <?php else: ?>
+            <a class="btn-acao btn-ativar"
+               href="index.php?controller=produto&action=toggle&id=<?= (int)$p['id'] ?>&ativo=1">Ativar</a>
+          <?php endif; ?>
 
-          <div class="cell-acoes">
-            <?php if ((int)$p['ativo'] === 1): ?>
-              <a class="btn-inativar"
-                 href="index.php?controller=produto&action=toggle&id=<?= (int)$p['id'] ?>&ativo=0"
-                 onclick="return confirm('Inativar este produto?')">Inativar</a>
-            <?php else: ?>
-              <a class="btn-ativar"
-                 href="index.php?controller=produto&action=toggle&id=<?= (int)$p['id'] ?>&ativo=1">Ativar</a>
-            <?php endif; ?>
-            <a class="btn-excluir"
-               href="index.php?controller=produto&action=deletar&id=<?= (int)$p['id'] ?>"
-               onclick="return confirm('⚠️ Excluir permanentemente?')">Excluir</a>
-          </div>
+          <a class="btn-acao btn-excluir"
+             href="index.php?controller=produto&action=deletar&id=<?= (int)$p['id'] ?>"
+             onclick="return confirm('⚠️ Excluir permanentemente?')">Excluir</a>
+
+          <a class="link-editar"
+             href="index.php?controller=produto&action=form&id=<?= (int)$p['id'] ?>">
+            Editar Produto
+          </a>
 
         </div>
       <?php endforeach; ?>
+    <?php endif; ?>
 
-    </div>
   </div>
 
 </body>
