@@ -1,29 +1,4 @@
--- ============================================================
--- Panela Quente — schema completo (todas as tabelas)
--- ============================================================
---
--- ⚠️ LEIA ANTES DE RODAR
---
--- Este arquivo serve para criar o banco `projetorrgi51` DO ZERO
--- (ex.: um ambiente novo, ou seu computador atual sem o banco).
---
--- `usuario`, `categoria1` e as colunas originais de `produto`
--- (categoria_id, nome, descricao, ativo) eu NUNCA criei — elas já
--- existiam no seu projeto antes de eu começar a ajudar. Reconstruí
--- essas três aqui só olhando como o código usa cada coluna (nome,
--- tipo aproximado), não copiando do seu banco real. Se você já tem
--- um banco `projetorrgi51` rodando com dados, NÃO rode este arquivo
--- nele — os tipos/tamanhos exatos (ex. VARCHAR(100) vs VARCHAR(150))
--- podem não bater com o que você já tem, e um CREATE TABLE aqui é
--- ignorado silenciosamente se a tabela já existir (não atualiza
--- colunas). Para um banco já existente, use os dois scripts
--- incrementais que já estão em "Arquivos importantes":
---     1) migracao_produto_estoque.sql   (fornecedor + colunas novas em produto)
---     2) migracao_pedidos.sql           (tabela pedido)
---
--- As tabelas `fornecedor`, `pedido` e as colunas novas de `produto`
--- (variacao, preco, estoque_qtd, fornecedor_id) eu criei e testei
--- nesta sessão — essa parte eu confirmo com certeza.
+
 -- ============================================================
 
 CREATE DATABASE IF NOT EXISTS projetorrgi51 CHARACTER SET utf8mb4;
