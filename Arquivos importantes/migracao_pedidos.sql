@@ -1,9 +1,4 @@
--- ============================================================
--- Migração: Pedidos (histórico) — Figma "Página Pedidos" (2:97)
--- ============================================================
--- Execute UMA VEZ no banco `projetorrgi51`.
--- Pré-requisito: rodar antes o script migracao_produto_estoque.sql
--- (a tela de pedidos lista os produtos ativos).
+-- Banco de Dados V1.5->V2/Atualizar o V1.5 Com esse código --
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS pedido (
