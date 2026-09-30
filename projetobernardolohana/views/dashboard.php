@@ -1,6 +1,34 @@
 <?php
 $nome   = $_SESSION['nome']   ?? 'Usuário';
-$perfil = $_SESSION['perfil'] ?? 'vendedor';
+$perfil = $_SESSION['perfil'] ?? '';
+
+function imagemProdutoDashboard(int $produtoId): string
+{
+    $baseFs  = __DIR__ . "/../public/uploads/produtos/";
+    $baseUrl = "public/uploads/produtos/";
+    foreach (['jpg', 'png', 'webp'] as $ext) {
+        if (file_exists($baseFs . $produtoId . '.' . $ext)) {
+            return $baseUrl . $produtoId . '.' . $ext;
+        }
+    }
+    return "public/assets/img/produto_sem_foto.png";
+}
+
+// Legenda do banner: usa a frase "de sempre" quando o nome da categoria bate com o texto
+// original do Figma; para categorias novas que o gerente criar, cai num texto genérico.
+function bannerCategoria(string $nome): string
+{
+    $mapa = [
+        'Refeições'  => 'Refeições mais populares do nosso restaurante.',
+        'Bebidas'    => 'Bebidas mais pedidas.',
+        'Sobremesas' => 'Sobremesas famosas.',
+    ];
+    return $mapa[$nome] ?? ($nome . ' disponíveis.');
+}
+
+// $categoriasProdutos vem do AuthController::dashboard() — só categorias com
+// pelo menos 1 produto ativo, na mesma ordem usada no Estoque.
+$categoriasProdutos = $categoriasProdutos ?? [];
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -10,79 +38,10 @@ $perfil = $_SESSION['perfil'] ?? 'vendedor';
   <title>Panela Quente – Menu</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --salmon:   #f3bfac;
-      --green:    #a8c288;
-      --green-dk: #505c41;
-      --teal:     #1f99ac;
-      --white:    #ffffff;
-      --black:    #111111;
-      --gray-ph:  #d9d9d9;
-      --page-w:   1400px;
-    }
-    html { scroll-behavior: smooth; }
-    body { font-family:'Inter',sans-serif; background:var(--white); color:var(--black); }
-
-    /* HEADER */
-    .page-header { display:flex; align-items:center; gap:28px; padding:18px 24px 12px; max-width:var(--page-w); margin:0 auto; }
-    .logo-wrap img { width:120px; height:auto; }
-    .header-center { flex:1; text-align:center; }
-    .header-title { font-family:'Inter',sans-serif; font-size:2rem; font-weight:500; color:var(--black); }
-    .header-logout { font-size:0.9rem; font-weight:400; color:var(--teal); text-decoration:none; display:block; margin-top:4px; opacity:.8; transition:opacity .15s; }
-    .header-logout:hover { opacity:1; text-decoration:underline; }
-
-    /* NAV */
-    .nav-bar { display:flex; justify-content:center; gap:18px; padding:8px 24px 16px; max-width:var(--page-w); margin:0 auto; }
-    .nav-bar a { display:inline-flex; align-items:center; padding:8px 36px; background:linear-gradient(90deg, #a8c288 60%, #505c41 100%); color:var(--black); font-weight:600; font-size:1.25rem; text-decoration:none; border-radius:200px; transition:opacity .15s, transform .15s; }
-    .nav-bar a:hover { opacity:.82; transform:translateY(-2px); }
-    .nav-bar a.active { background:linear-gradient(90deg, var(--green-dk) 0%, #2d3620 100%); color:#fff; }
-
-    /* HERO */
-    .hero { position:relative; width:100%; max-width:var(--page-w); margin:0 auto; height:780px; overflow:hidden; }
-    .hero-img { position:absolute; object-fit:cover; }
-    .hero-img:nth-child(1) { left:4.6%; top:0; width:54.4%; height:53.6%; }
-    .hero-img:nth-child(2) { left:59%; top:5%; width:40.2%; height:43.8%; }
-    .hero-img:nth-child(3) { left:50%; top:46%; width:54.9%; height:60.5%; }
-    .hero-img:nth-child(4) { left:4.6%; top:50%; width:45.6%; height:54.1%; }
-
-    /* SECTION TITLE */
-    .section-title-wrap { max-width:var(--page-w); margin:0 auto; padding:48px 24px 32px; }
-    .section-banner { background:var(--salmon); border-radius:5px; padding:12px 28px; font-size:1.35rem; font-weight:400; color:var(--black); display:inline-block; }
-
-    /* PRODUCT GRID */
-    .product-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:28px; max-width:var(--page-w); margin:0 auto; padding:0 24px 60px; }
-    .product-card { display:flex; flex-direction:column; }
-    .product-card__img { width:100%; aspect-ratio:4/3; border-radius:15px; object-fit:cover; display:block; background:var(--gray-ph); }
-    .product-card__placeholder { width:100%; aspect-ratio:4/3; border-radius:15px; background:var(--gray-ph); }
-    .product-card__label { background:var(--salmon); border-radius:5px; margin-top:10px; padding:10px 18px; font-size:1.1rem; font-weight:400; color:var(--black); width:fit-content; max-width:100%; }
-
-    /* FOOTER */
-    .footer { max-width:var(--page-w); margin:0 auto; padding:48px 24px 80px; display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:start; }
-    .footer__about h3, .footer__contact h3 { font-family:'Inter',sans-serif; font-size:1.6rem; font-weight:600; margin-bottom:22px; }
-    .footer__about-box { background:var(--salmon); border-radius:15px; padding:30px 32px; font-size:1.05rem; line-height:1.8; color:#1a1a1a; }
-    .footer__about-box p + p { margin-top:14px; }
-    .contact-list { display:flex; flex-direction:column; gap:12px; }
-    .contact-item { background:var(--salmon); border-radius:5px; padding:10px 18px; display:flex; align-items:center; gap:14px; font-size:1rem; color:var(--black); }
-    .contact-item img { width:42px; height:42px; object-fit:contain; flex-shrink:0; }
-    .footer-logo-wrap { margin-top:36px; display:flex; justify-content:flex-end; }
-    .footer-logo-wrap img { width:200px; height:auto; }
-
-    @media (max-width:900px) {
-      .hero { height:400px; }
-      .product-grid { grid-template-columns:1fr; gap:20px; }
-      .footer { grid-template-columns:1fr; gap:40px; }
-      .header-title { font-size:1.25rem; }
-    }
-    @media (max-width:620px) {
-      .product-grid { grid-template-columns:1fr; }
-      .hero { height:260px; }
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="public/assets/css/style.css">
 </head>
-<body>
+<body data-page="dashboard">
 
   <header>
     <div class="page-header">
@@ -92,15 +51,24 @@ $perfil = $_SESSION['perfil'] ?? 'vendedor';
       </div>
       <div class="header-center">
         <h1 class="header-title">Bem-vindo <?= htmlspecialchars($nome) ?> ao Panela Quente</h1>
-        <a class="header-logout" href="/projetobernardolohana/index.php?controller=auth&action=logout">
+        <a class="header-logout" href="index.php?controller=auth&action=logout">
           (<?= htmlspecialchars($perfil) ?>) &mdash; Sair
         </a>
       </div>
     </div>
     <nav class="nav-bar">
-      <a href="/projetobernardolohana/index.php?controller=auth&action=dashboard" class="active">Menu</a>
-      <a href="/projetobernardolohana/index.php?controller=produto&action=index">Estoque</a>
-      <a href="/projetobernardolohana/index.php?controller=venda&action=index">Pedidos</a>
+      <?php if (acl_podeVer('dashboard')): ?>
+        <a href="index.php?controller=auth&action=dashboard" class="active">Menu</a>
+      <?php endif; ?>
+      <?php if (acl_podeVer('fornecedor')): ?>
+        <a href="index.php?controller=fornecedor&action=index">Fornecedores</a>
+      <?php endif; ?>
+      <?php if (acl_podeVer('produto')): ?>
+        <a href="index.php?controller=produto&action=index">Estoque</a>
+      <?php endif; ?>
+      <?php if (acl_podeVer('venda')): ?>
+        <a href="index.php?controller=venda&action=index">Pedidos</a>
+      <?php endif; ?>
     </nav>
   </header>
 
@@ -111,59 +79,31 @@ $perfil = $_SESSION['perfil'] ?? 'vendedor';
     <img class="hero-img" src="public/uploads/img/60 2 1.png" alt="Prato" />
   </div>
 
-  <div class="section-title-wrap">
-    <span class="section-banner">Refeições mais populares do nosso restaurante.</span>
-  </div>
-  <div class="product-grid">
-    <div class="product-card">
-      <img class="product-card__img" src="public/uploads/img/image 6.png" alt="Frango com quiabo" />
-      <span class="product-card__label">Frango com quiabo</span>
-    </div>
-    <div class="product-card">
-      <img class="product-card__img" src="public/uploads/img/image 7.png" alt="Ensopado de carne e batata" />
-      <span class="product-card__label">Ensopado de carne e batata</span>
-    </div>
-    <div class="product-card">
-      <img class="product-card__img" src="public/uploads/img/image 8.png" alt="Strogonoff de frango" />
-      <span class="product-card__label">Strogonoff de frango</span>
-    </div>
-  </div>
-
-  <div class="section-title-wrap">
-    <span class="section-banner">Bebidas mais pedidas.</span>
-  </div>
-  <div class="product-grid">
-    <div class="product-card">
-      <img class="product-card__img" src="public/uploads/img/l-intro-1672949640.jpg" alt="Coca Cola" />
-      <span class="product-card__label">Coca Cola</span>
-    </div>
-    <div class="product-card">
-      <img class="product-card__img" src="public/uploads/img/8.jpg" alt="Guaraná Antártica" />
-      <span class="product-card__label">Guaraná Antártica</span>
-    </div>
-    <div class="product-card">
-      <img class="product-card__img" src="public/uploads/img/5.jpg" alt="Água Mineral" />
-      <span class="product-card__label">Água Mineral</span>
-    </div>
-  </div>
-
-  <div class="section-title-wrap">
-    <span class="section-banner">Sobremesas famosas.</span>
-  </div>
-  <div class="product-grid">
-    <div class="product-card">
-      <img class="product-card__img" src="public/uploads/img/12.jpg" alt="Bolo de Morango" />
-      <span class="product-card__label">Bolo de Morango</span>
-    </div>
-    <div class="product-card">
-      <img class="product-card__img" src="public/uploads/img/14.jpg" alt="Brigadeiro" />
-      <span class="product-card__label">Brigadeiro</span>
-    </div>
-    <div class="product-card">
-      <img class="product-card__img" src="public/uploads/img/13.jpg" alt="Bolo de Maracujá" />
-      <span class="product-card__label">Bolo de Maracujá</span>
-    </div>
-  </div>
+  <?php if (empty($categoriasProdutos)): ?>
+    <div class="empty-cardapio">Nenhum produto disponível no momento. Volte em breve!</div>
+  <?php else: ?>
+    <?php foreach ($categoriasProdutos as $catId => $cat): ?>
+      <div class="section-title-wrap">
+        <span class="section-banner"><?= htmlspecialchars(bannerCategoria($cat['nome'])) ?></span>
+      </div>
+      <div class="carousel-outer" data-carousel>
+        <button type="button" class="car-arrow car-prev" aria-label="Produto anterior">&#8592;</button>
+        <div class="carousel-viewport">
+          <div class="carousel-track">
+            <?php foreach ($cat['produtos'] as $p): ?>
+              <div class="product-card">
+                <img class="product-card__img"
+                     src="<?= htmlspecialchars(imagemProdutoDashboard((int)$p['id'])) ?>"
+                     alt="<?= htmlspecialchars($p['nome']) ?>" loading="lazy" decoding="async" />
+                <span class="product-card__label"><?= htmlspecialchars($p['nome']) ?></span>
+              </div>
+            <?php endforeach; ?>
+          </div>
+        </div>
+        <button type="button" class="car-arrow car-next" aria-label="Próximo produto">&#8594;</button>
+      </div>
+    <?php endforeach; ?>
+  <?php endif; ?>
 
   <footer class="footer">
     <div class="footer__about">
@@ -199,6 +139,35 @@ $perfil = $_SESSION['perfil'] ?? 'vendedor';
       </div>
     </div>
   </footer>
+
+  <script>
+    // Setas: avançam/voltam um cartão por clique (a largura do cartão é medida
+    // em tempo real, então funciona igual em qualquer tamanho de tela).
+    document.querySelectorAll('[data-carousel]').forEach(function (carousel) {
+      const viewport = carousel.querySelector('.carousel-viewport');
+      const track    = carousel.querySelector('.carousel-track');
+      const prevBtn  = carousel.querySelector('.car-prev');
+      const nextBtn  = carousel.querySelector('.car-next');
+      const cards    = Array.from(track.children);
+      if (cards.length === 0) return;
+
+      function passo() {
+        const style = getComputedStyle(track);
+        const gap = parseFloat(style.columnGap || style.gap || '0');
+        return cards[0].getBoundingClientRect().width + gap;
+      }
+      function atualizarBotoes() {
+        const max = viewport.scrollWidth - viewport.clientWidth - 1;
+        prevBtn.disabled = viewport.scrollLeft <= 0;
+        nextBtn.disabled = viewport.scrollLeft >= max || max <= 0;
+      }
+      prevBtn.addEventListener('click', () => { viewport.scrollLeft -= passo(); });
+      nextBtn.addEventListener('click', () => { viewport.scrollLeft += passo(); });
+      viewport.addEventListener('scroll', atualizarBotoes, { passive: true });
+      window.addEventListener('resize', atualizarBotoes);
+      atualizarBotoes();
+    });
+  </script>
 
 </body>
 </html>

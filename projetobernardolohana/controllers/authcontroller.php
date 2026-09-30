@@ -1,5 +1,8 @@
 <?php
 require_once __DIR__ . '/../models/usuario.php';
+require_once __DIR__ . '/../models/produto.php';
+require_once __DIR__ . '/../models/categoria.php';
+require_once __DIR__ . '/../helpers/acl.php';
 class AuthController
 {
 public function form()
@@ -27,12 +30,28 @@ exit;
 }
 public function dashboard()
 {
+    acl_exigirPerfil(['cliente']);
 
+    // Agrupa produtos ativos por categoria (mesma lógica usada no Estoque),
+    // para o cardápio virar um carrossel de verdade em vez de 3 fotos fixas.
+    $categoriaModel = new Categoria1();
+    $produtoModel   = new Produto();
+    $categoriasAtivas = $categoriaModel->listarAtivas();
+    $todosProdutos    = $produtoModel->listarComCategoria(true);
 
+    $categoriasProdutos = [];
+    foreach ($categoriasAtivas as $cat) {
+        $categoriasProdutos[$cat['id']] = ['nome' => $cat['nome'], 'produtos' => []];
+    }
+    foreach ($todosProdutos as $p) {
+        if (isset($categoriasProdutos[$p['categoria_id']])) {
+            $categoriasProdutos[$p['categoria_id']]['produtos'][] = $p;
+        }
+    }
+    // remove categorias sem nenhum produto ativo (não faz sentido mostrar carrossel vazio)
+    $categoriasProdutos = array_filter($categoriasProdutos, fn($c) => count($c['produtos']) > 0);
 
-
-$this->check();
-require_once __DIR__ . '/../views/dashboard.php';
+    require_once __DIR__ . '/../views/dashboard.php';
 }
 public function logout()
 {

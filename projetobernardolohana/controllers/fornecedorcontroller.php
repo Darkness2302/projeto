@@ -1,12 +1,13 @@
 <?php
 require_once __DIR__ . '/../models/fornecedor.php';
+require_once __DIR__ . '/../helpers/acl.php';
 
 class FornecedorController
 {
     // Tela de Fornecedores: lista + formulário de adicionar/editar na mesma página
     public function index(): void
     {
-        $this->check();
+        acl_exigirPerfil([]);
         $fornecedorModel = new Fornecedor();
         $fornecedores = $fornecedorModel->listarTodos();
 
@@ -20,8 +21,7 @@ class FornecedorController
 
     public function salvar(): void
     {
-        $this->check();
-        $this->onlyAdmin();
+        acl_exigirPerfil([]);
 
         $id       = (int)($_POST['id'] ?? 0);
         $nome     = trim($_POST['nome'] ?? '');
@@ -56,8 +56,7 @@ class FornecedorController
 
     public function toggle(): void
     {
-        $this->check();
-        $this->onlyAdmin();
+        acl_exigirPerfil([]);
         $id = (int)($_GET['id'] ?? 0);
         $ativo = (int)($_GET['ativo'] ?? 1);
         if ($id <= 0) die("ID inválido.");
@@ -69,8 +68,7 @@ class FornecedorController
 
     public function deletar(): void
     {
-        $this->check();
-        $this->onlyAdmin();
+        acl_exigirPerfil([]);
         $id = (int)($_GET['id'] ?? 0);
 
         if ($id <= 0) die("ID inválido.");
@@ -127,21 +125,6 @@ class FornecedorController
             if (file_exists($arquivo)) {
                 unlink($arquivo);
             }
-        }
-    }
-
-    private function check(): void
-    {
-        if (!isset($_SESSION['usuario_id'])) {
-            header("Location: index.php?controller=auth&action=form");
-            exit;
-        }
-    }
-
-    private function onlyAdmin(): void
-    {
-        if (($_SESSION['perfil'] ?? '') !== 'gerente') {
-            die("Acesso negado.");
         }
     }
 }

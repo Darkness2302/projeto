@@ -2,13 +2,14 @@
 require_once __DIR__ . '/../models/produto.php';
 require_once __DIR__ . '/../models/categoria.php';
 require_once __DIR__ . '/../models/fornecedor.php';
+require_once __DIR__ . '/../helpers/acl.php';
 
 class ProdutoController
 {
     // Tela de Estoque: só listagem (Figma node 2:95)
     public function index(): void
     {
-        $this->check();
+        acl_exigirPerfil(['garcom']);
         $produtoModel = new Produto();
         $produtos = $produtoModel->listarComCategoria(false);
         require_once __DIR__ . '/../views/produtos.php';
@@ -19,8 +20,7 @@ class ProdutoController
     // Com ?id= -> formulário pré-preenchido (edição)
     public function form(): void
     {
-        $this->check();
-        $this->onlyAdmin();
+        acl_exigirPerfil(['garcom']);
 
         $categoriaModel  = new Categoria1();
         $fornecedorModel = new Fornecedor();
@@ -41,8 +41,7 @@ class ProdutoController
 
     public function salvar(): void
     {
-        $this->check();
-        $this->onlyAdmin();
+        acl_exigirPerfil(['garcom']);
 
         $id          = (int)($_POST['id'] ?? 0);
         $categoriaId = (int)($_POST['categoria_id'] ?? 0);
@@ -52,9 +51,7 @@ class ProdutoController
         $variacao    = trim($_POST['variacao'] ?? '');
         $variacao    = $variacao === '' ? null : $variacao;
 
-        $precoRaw = str_replace(['R$', ' '], '', $_POST['preco'] ?? '0');
-        $precoRaw = str_replace(',', '.', $precoRaw);
-        $preco    = max(0, (float)$precoRaw);
+        $preco = $this->parsePreco($_POST['preco'] ?? '0');
 
         $estoqueQtd = max(0, (int)($_POST['estoque_qtd'] ?? 0));
 
@@ -80,8 +77,7 @@ class ProdutoController
 
     public function toggle(): void
     {
-        $this->check();
-        $this->onlyAdmin();
+        acl_exigirPerfil(['garcom']);
         $id = (int)($_GET['id'] ?? 0);
         $ativo = (int)($_GET['ativo'] ?? 1);
         if ($id <= 0) die("ID inválido.");
@@ -93,8 +89,7 @@ class ProdutoController
 
     public function deletar(): void
     {
-        $this->check();
-        $this->onlyAdmin();
+        acl_exigirPerfil(['garcom']);
         $id = (int)($_GET['id'] ?? 0);
 
         if ($id <= 0) die("ID inválido.");
@@ -156,18 +151,21 @@ class ProdutoController
         }
     }
 
-    private function check(): void
+    /**
+     * Aceita "28,50", "1.234,50", "R$ 12,5" e "12.50".
+     * (Antes só trocava a vírgula por ponto, então "1.234,50" virava 1.234.)
+     */
+    private function parsePreco(string $raw): float
     {
-        if (!isset($_SESSION['usuario_id'])) {
-            header("Location: index.php?controller=auth&action=form");
-            exit;
+        $v = str_replace(['R$', ' '], '', trim($raw));
+        if (strpos($v, ',') !== false) {
+            // formato brasileiro: o ponto é separador de milhar e a vírgula é o decimal
+            $v = str_replace('.', '', $v);
+            $v = str_replace(',', '.', $v);
+        } elseif (preg_match('/^\d{1,3}(\.\d{3})+$/', $v)) {
+            // "1.234" ou "12.500" sem vírgula: milhar
+            $v = str_replace('.', '', $v);
         }
-    }
-
-    private function onlyAdmin(): void
-    {
-        if (($_SESSION['perfil'] ?? '') !== 'gerente') {
-            die("Acesso negado.");
-        }
+        return max(0, (float)$v);
     }
 }

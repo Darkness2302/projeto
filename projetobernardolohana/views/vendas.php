@@ -1,6 +1,28 @@
 <?php
-// $pedidos = array de pedidos (ainda a ser implementado no VendaController)
-$pedidos = $pedidos ?? [];
+function imagemProdutoPedido(?int $produtoId): string
+{
+    $fallback = "public/assets/img/produto_sem_foto.png";
+    if (!$produtoId) return $fallback;
+    $baseFs  = __DIR__ . "/../public/uploads/produtos/";
+    $baseUrl = "public/uploads/produtos/";
+    foreach (['jpg', 'png', 'webp'] as $ext) {
+        if (file_exists($baseFs . $produtoId . '.' . $ext)) {
+            return $baseUrl . $produtoId . '.' . $ext;
+        }
+    }
+    return $fallback;
+}
+
+function pedidoData(?string $dt): string
+{
+    return $dt ? date('d/m/Y', strtotime($dt)) : '—';
+}
+
+function pedidoHora(?string $v): string
+{
+    return $v ? date('H:i', strtotime($v)) : '';
+}
+$semFoto = "public/assets/img/produto_sem_foto.png";
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -11,70 +33,9 @@ $pedidos = $pedidos ?? [];
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --salmon:   #f3bfac;
-      --green:    #a8c288;
-      --green-dk: #505c41;
-      --teal:     #1f99ac;
-      --gray-img: #d9d9d9;
-      --white:    #ffffff;
-      --black:    #111111;
-      --divider:  #c8c8c8;
-    }
-    body { font-family:'Inter',sans-serif; background:var(--white); color:var(--black); min-height:100vh; }
-
-    /* HEADER */
-    .site-header { display:flex; align-items:center; padding:20px 48px 16px 44px; }
-    .header-logo { width:112px; height:auto; flex-shrink:0; }
-    .header-right { flex:1; display:flex; flex-direction:column; align-items:center; gap:16px; }
-    .header-title { font-size:1.85rem; font-weight:600; color:var(--black); text-align:center; }
-    .nav-pills { display:flex; gap:16px; align-items:center; }
-    .nav-pills a { display:inline-block; padding:7px 36px; background:linear-gradient(90deg, var(--green) 60%, var(--green-dk) 100%); color:var(--black); font-weight:600; font-size:1.2rem; text-decoration:none; border-radius:200px; transition:opacity .15s, transform .15s; }
-    .nav-pills a:hover { opacity:.82; transform:translateY(-2px); }
-    .nav-pills a.active { background:linear-gradient(90deg, var(--green-dk) 0%, #2d3620 100%); color:#fff; }
-    .h-divider { height:1px; background:var(--divider); }
-
-    /* ORDERS LIST */
-    .orders-wrap { padding:28px 56px 64px 44px; display:flex; flex-direction:column; gap:0; }
-
-    .order-item { display:flex; align-items:stretch; gap:26px; padding:14px 0; border-bottom:1px solid #f0ece7; }
-    .order-item:last-child { border-bottom:none; }
-
-    .order-img { width:200px; min-width:200px; height:160px; background:var(--gray-img); flex-shrink:0; overflow:hidden; }
-    .order-img img { width:100%; height:100%; object-fit:cover; }
-
-    .order-content { flex:1; display:flex; flex-direction:column; justify-content:space-between; gap:10px; padding:8px 0; }
-    .order-badges { display:flex; gap:28px; align-items:center; }
-    .badge-name { background:var(--salmon); border-radius:5px; height:56px; flex:0 0 320px; display:flex; align-items:center; padding:0 20px; font-size:1rem; font-weight:400; color:var(--black); }
-    .badge-qty  { background:var(--salmon); border-radius:5px; height:56px; flex:0 0 300px; display:flex; align-items:center; padding:0 20px; font-size:1.1rem; font-weight:400; color:var(--black); }
-
-    .order-timestamp { display:flex; flex-direction:column; gap:2px; line-height:1.3; }
-    .ts-horario { font-size:1.2rem; font-weight:800; color:var(--teal); }
-    .ts-data    { font-size:1.2rem; font-weight:800; color:var(--black); }
-
-    /* EMPTY STATE */
-    .empty-state { text-align:center; padding:64px 24px; color:#888; }
-    .empty-state p { font-size:1.2rem; }
-
-    @media (max-width:860px) {
-      .site-header  { padding:16px 20px; }
-      .orders-wrap  { padding:20px 16px 48px; }
-      .header-title { font-size:1.3rem; }
-      .nav-pills a  { font-size:.95rem; padding:6px 20px; }
-      .order-img    { width:110px; min-width:110px; height:110px; }
-      .badge-name   { flex:1; min-width:0; }
-      .badge-qty    { flex:0 0 140px; }
-      .order-badges { gap:12px; }
-    }
-    @media (max-width:540px) {
-      .order-badges { flex-wrap:wrap; }
-      .badge-qty    { flex:1; min-width:0; }
-    }
-  </style>
+  <link rel="stylesheet" href="public/assets/css/style.css">
 </head>
-<body>
+<body data-page="vendas">
 
   <header class="site-header">
     <img class="header-logo"
@@ -83,47 +44,135 @@ $pedidos = $pedidos ?? [];
     <div class="header-right">
       <h1 class="header-title">Acesse o histórico de pedidos aqui:</h1>
       <nav class="nav-pills">
-        <a href="/projetobernardolohana/index.php?controller=auth&action=dashboard">Menu</a>
-        <a href="/projetobernardolohana/index.php?controller=produto&action=index">Estoque</a>
-        <a href="/projetobernardolohana/index.php?controller=venda&action=index" class="active">Pedidos</a>
+        <?php if (acl_podeVer('dashboard')): ?><a href="index.php?controller=auth&action=dashboard">Menu</a><?php endif; ?>
+        <?php if (acl_podeVer('fornecedor')): ?><a href="index.php?controller=fornecedor&action=index">Fornecedores</a><?php endif; ?>
+        <?php if (acl_podeVer('produto')): ?><a href="index.php?controller=produto&action=index">Estoque</a><?php endif; ?>
+        <a href="index.php?controller=venda&action=index" class="active">Pedidos</a>
       </nav>
     </div>
   </header>
 
   <div class="h-divider"></div>
 
-  <div class="orders-wrap">
-    <?php if (empty($pedidos)): ?>
-      <div class="empty-state">
-        <p>Nenhum pedido registrado ainda.</p>
-      </div>
-    <?php else: ?>
-      <?php foreach ($pedidos as $pedido): ?>
-        <div class="order-item">
-          <div class="order-img">
-            <?php if (!empty($pedido['imagem'])): ?>
-              <img src="<?= htmlspecialchars($pedido['imagem']) ?>" alt="Produto" />
+  <?php if (!empty($erroBanco)): ?>
+    <div class="aviso erro"><?= htmlspecialchars($erroBanco) ?></div>
+  <?php endif; ?>
+  <?php if (!empty($flash)): ?>
+    <div class="aviso <?= ($flash['tipo'] ?? '') === 'ok' ? 'ok' : 'erro' ?>"><?= htmlspecialchars($flash['msg'] ?? '') ?></div>
+  <?php endif; ?>
+
+  <!-- ══ REGISTRAR / REMOVER PEDIDO ══ -->
+  <div class="form-section">
+    <form id="form-pedido" method="post" action="index.php?controller=venda&action=adicionar">
+      <div class="form-grid">
+
+        <div class="img-preview">
+          <img id="img-preview-tag" src="<?= htmlspecialchars($semFoto) ?>" alt="Foto do produto escolhido">
+        </div>
+
+        <div class="field fb-id">
+          <label class="field-label" for="f-id">ID Pedido (usado só para Remover)</label>
+          <input id="f-id" type="number" name="id_pedido" min="1" placeholder="ID Pedido">
+        </div>
+        <div class="field fb-data">
+          <label class="field-label" for="f-data">Hora/Data</label>
+          <input id="f-data" type="datetime-local" name="data_pedido" value="<?= date('Y-m-d\TH:i') ?>">
+        </div>
+        <div class="field fb-qtd">
+          <label class="field-label" for="f-qtd">Quantidade</label>
+          <input id="f-qtd" type="number" name="quantidade" min="1" step="1" placeholder="Quantidade" required>
+        </div>
+
+        <button type="submit" class="btn-adicionar">Adicionar</button>
+        <button type="submit" class="btn-remover"
+                formaction="index.php?controller=venda&action=remover" formnovalidate
+                onclick="return confirmarRemocao()">Remover</button>
+        <a class="btn-limpar" href="index.php?controller=venda&action=index">Limpar</a>
+
+        <div class="extra-row">
+          <div class="field">
+            <label class="field-label" for="f-produto">Produto</label>
+            <?php if (!empty($produtosSel)): ?>
+              <select id="f-produto" name="produto_id" required>
+                <option value="" data-img="<?= htmlspecialchars($semFoto) ?>">Escolha o produto...</option>
+                <?php foreach ($produtosSel as $pr): ?>
+                  <option value="<?= (int)$pr['id'] ?>" data-img="<?= htmlspecialchars(imagemProdutoPedido((int)$pr['id'])) ?>">
+                    <?= htmlspecialchars($pr['nome']) ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
+            <?php else: ?>
+              <div class="field-hint">Nenhum produto ativo. <a href="index.php?controller=produto&action=index">Ir para o Estoque</a></div>
             <?php endif; ?>
           </div>
-          <div class="order-content">
-            <div class="order-badges">
-              <div class="badge-name"><?= htmlspecialchars($pedido['nome'] ?? '') ?></div>
-              <div class="badge-qty">Qtd: <?= htmlspecialchars($pedido['quantidade'] ?? '') ?></div>
+          <div class="field">
+            <label class="field-label" for="f-nf">Nota Fiscal</label>
+            <input id="f-nf" type="text" name="nota_fiscal" maxlength="60" placeholder="Nota Fiscal">
+          </div>
+          <div class="field">
+            <label class="field-label" for="f-receb">Hora do recebimento</label>
+            <input id="f-receb" type="time" name="hora_recebimento">
+          </div>
+        </div>
+
+      </div>
+    </form>
+  </div>
+
+  <div class="h-divider"></div>
+
+  <!-- ══ HISTÓRICO (o pedido mais recente aparece primeiro) ══ -->
+  <div class="list-wrap">
+    <?php if (empty($pedidos)): ?>
+      <div class="empty-state"><p>Nenhum pedido registrado ainda.</p></div>
+    <?php else: ?>
+      <?php foreach ($pedidos as $pedido): ?>
+        <div class="pedido-row">
+
+          <div class="pedido-img">
+            <img src="<?= htmlspecialchars(imagemProdutoPedido(isset($pedido['produto_id']) ? (int)$pedido['produto_id'] : null)) ?>"
+                 alt="<?= htmlspecialchars($pedido['produto_nome'] ?? 'Produto') ?>" loading="lazy" decoding="async">
+          </div>
+
+          <div class="pedido-body">
+            <div class="pedido-badges">
+              <div class="badge badge-nome">
+                <span class="pid">#<?= (int)$pedido['id'] ?></span><?= htmlspecialchars($pedido['produto_nome'] ?? '') ?>
+              </div>
+              <div class="badge">Quantidade: <?= (int)$pedido['quantidade'] ?></div>
+              <div class="badge">Nota Fiscal: <?= htmlspecialchars(($pedido['nota_fiscal'] ?? '') !== '' ? $pedido['nota_fiscal'] : '—') ?></div>
             </div>
-            <div class="order-timestamp">
-              <span class="ts-horario">
-                <?= htmlspecialchars($pedido['hora_pedido'] ?? '') ?>
-                <?php if (!empty($pedido['hora_recebimento'])): ?>
-                  – <?= htmlspecialchars($pedido['hora_recebimento']) ?>
-                <?php endif; ?>
-              </span>
-              <span class="ts-data"><?= htmlspecialchars($pedido['data'] ?? '') ?></span>
+            <div class="pedido-quando">
+              <div class="quando-hora">
+                <?= htmlspecialchars(pedidoHora($pedido['data_pedido'] ?? null)) ?>
+                –
+                <?= !empty($pedido['hora_recebimento']) ? htmlspecialchars(pedidoHora($pedido['hora_recebimento'])) : 'aguardando recebimento' ?>
+              </div>
+              <div class="quando-data"><?= htmlspecialchars(pedidoData($pedido['data_pedido'] ?? null)) ?></div>
             </div>
           </div>
+
         </div>
       <?php endforeach; ?>
     <?php endif; ?>
   </div>
+
+  <script>
+    // Mostra a foto do produto escolhido na caixa cinza do formulário
+    const sel = document.getElementById('f-produto');
+    if (sel) {
+      sel.addEventListener('change', function () {
+        const opt = sel.options[sel.selectedIndex];
+        document.getElementById('img-preview-tag').src = opt.dataset.img;
+      });
+    }
+    // Remover exige o ID do pedido e confirmação
+    function confirmarRemocao() {
+      const id = document.getElementById('f-id').value.trim();
+      if (!id) { alert('Digite o ID do pedido (mostrado como #número no histórico) para remover.'); return false; }
+      return confirm('Remover permanentemente o pedido #' + id + '?');
+    }
+  </script>
 
 </body>
 </html>
