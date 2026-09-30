@@ -1,4 +1,4 @@
-Banco de Dados V1 >PURO<
+-- Banco de Dados V1 >PURO< --
 -- ============================================================
 
 CREATE DATABASE IF NOT EXISTS projetorrgi51 CHARACTER SET utf8mb4;
