@@ -1,15 +1,5 @@
+-- Atualização p Banco de Dados V1->V1.5/Rodar no V1 já montado --
 -- ============================================================
--- Migração: campos de Estoque no formulário de produto
--- Telas Figma: "Página Estoque" (2:95) e "Página Adição/Edição" (394:308)
--- ============================================================
--- Execute este script UMA VEZ no banco `projetorrgi51`.
--- Se algum ALTER falhar porque a coluna já existe, pode remover
--- só aquela linha e rodar o resto.
--- ============================================================
-
--- 1) Tabela de fornecedores (cria só se ainda não existir).
---    Se você já tem essa tabela de uma migração anterior, este
---    comando é ignorado com segurança (CREATE TABLE IF NOT EXISTS).
 CREATE TABLE IF NOT EXISTS fornecedor (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(150) NOT NULL,
