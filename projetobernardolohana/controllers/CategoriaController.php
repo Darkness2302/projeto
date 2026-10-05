@@ -1,12 +1,12 @@
 <?php
-require_once __DIR__ . '/../models/Categoria.php';
+require_once __DIR__ . '/../models/categoria.php';
 class CategoriaController
 {
 public function index(): void
 {
 $this->check();
 $this->onlyAdmin();
-$categoriaModel = new Categoria();
+$categoriaModel = new Categoria1();
 $categorias = $categoriaModel->listarTodas();
 // se veio ?id=..., entra em modo edição
 $editar = null;
@@ -24,7 +24,7 @@ $nome = trim($_POST['nome'] ?? '');
 if ($nome === '') {
 die("Nome inválido.");
 }
-$categoriaModel = new Categoria();
+$categoriaModel = new Categoria1();
 if ($id > 0) {
 $categoriaModel->atualizar($id, $nome);
 } else {
@@ -40,7 +40,7 @@ $this->onlyAdmin();
 $id = (int)($_GET['id'] ?? 0);
 $ativo = (int)($_GET['ativo'] ?? 1);
 if ($id <= 0) die("ID inválido.");
-$categoriaModel = new Categoria();
+$categoriaModel = new Categoria1();
 $categoriaModel->setAtivo($id, $ativo === 1);
 header("Location: index.php?controller=categoria&action=index");
 exit;

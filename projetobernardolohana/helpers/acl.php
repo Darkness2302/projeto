@@ -1,14 +1,16 @@
 <?php
 /**
  * Controle de acesso por perfil de usuário.
- * Perfis existentes: cliente, garcom, gerente.
- * (O perfil de usuário "garcom" não deve ser confundido com a tabela/model
+ * Perfis existentes: cliente, garçom, gerente (com cedilha — é como o
+ * banco real do usuário já grava o valor, então o código tem que checar
+ * exatamente "garçom" para bater com os usuários já cadastrados).
+ * (O perfil de usuário "garçom" não deve ser confundido com a tabela/model
  * `fornecedor`, que representa os fornecedores de mercadoria do restaurante
  * — são conceitos diferentes que só coincidem de nome por acaso.)
  *
  * Regra combinada nas três funções abaixo:
  *   - cliente -> só o Cardápio (dashboard)
- *   - garcom  -> só Estoque e Pedidos
+ *   - garçom  -> só Estoque e Pedidos
  *   - gerente -> todas as páginas (Cardápio, Fornecedores, Estoque, Pedidos, Categorias)
  */
 
@@ -46,8 +48,8 @@ function acl_podeVer(string $pagina): bool
     $mapa = [
         'dashboard'   => ['cliente'],
         'fornecedor'  => [],              // gestão de fornecedores: só gerente (ver nota na entrega)
-        'produto'     => ['garcom'],
-        'venda'       => ['garcom'],
+        'produto'     => ['garçom'],
+        'venda'       => ['garçom'],
     ];
     return in_array($perfil, $mapa[$pagina] ?? [], true);
 }

@@ -22,6 +22,11 @@ function pedidoHora(?string $v): string
 {
     return $v ? date('H:i', strtotime($v)) : '';
 }
+
+function valorFormatado(?float $v): string
+{
+    return 'R$ ' . number_format($v ?? 0, 2, ',', '.');
+}
 $semFoto = "public/assets/img/produto_sem_foto.png";
 ?>
 <!DOCTYPE html>
@@ -106,14 +111,12 @@ $semFoto = "public/assets/img/produto_sem_foto.png";
             <?php endif; ?>
           </div>
           <div class="field">
-            <label class="field-label" for="f-nf">Nota Fiscal</label>
-            <input id="f-nf" type="text" name="nota_fiscal" maxlength="60" placeholder="Nota Fiscal">
-          </div>
-          <div class="field">
             <label class="field-label" for="f-receb">Hora do recebimento</label>
             <input id="f-receb" type="time" name="hora_recebimento">
           </div>
         </div>
+
+        <div class="nota-auto-hint">🧾 A nota fiscal é gerada automaticamente ao registrar o pedido — não precisa digitar nada.</div>
 
       </div>
     </form>
@@ -140,7 +143,7 @@ $semFoto = "public/assets/img/produto_sem_foto.png";
                 <span class="pid">#<?= (int)$pedido['id'] ?></span><?= htmlspecialchars($pedido['produto_nome'] ?? '') ?>
               </div>
               <div class="badge">Quantidade: <?= (int)$pedido['quantidade'] ?></div>
-              <div class="badge">Nota Fiscal: <?= htmlspecialchars(($pedido['nota_fiscal'] ?? '') !== '' ? $pedido['nota_fiscal'] : '—') ?></div>
+              <div class="badge">Total: <?= htmlspecialchars(valorFormatado(isset($pedido['valor_total']) ? (float)$pedido['valor_total'] : null)) ?></div>
             </div>
             <div class="pedido-quando">
               <div class="quando-hora">
@@ -150,6 +153,11 @@ $semFoto = "public/assets/img/produto_sem_foto.png";
               </div>
               <div class="quando-data"><?= htmlspecialchars(pedidoData($pedido['data_pedido'] ?? null)) ?></div>
             </div>
+            <?php if (!empty($pedido['nota_fiscal'])): ?>
+              <a class="link-nota" href="index.php?controller=venda&action=notaFiscal&id=<?= (int)$pedido['id'] ?>">
+                🧾 Ver Nota Fiscal (<?= htmlspecialchars($pedido['nota_fiscal']) ?>)
+              </a>
+            <?php endif; ?>
           </div>
 
         </div>

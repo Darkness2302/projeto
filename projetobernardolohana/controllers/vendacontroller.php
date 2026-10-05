@@ -8,7 +8,7 @@ class VendaController
     // Tela de Pedidos: formulário de registro + histórico (Figma node 2:97)
     public function index(): void
     {
-        acl_exigirPerfil(['garcom']);
+        acl_exigirPerfil(['garçom']);
 
         $pedidos     = [];
         $produtosSel = [];
@@ -30,23 +30,18 @@ class VendaController
         require_once __DIR__ . '/../views/vendas.php';
     }
 
-    // Botão "Adicionar": registra o pedido e ele já aparece no topo do histórico
+    // Botão "Adicionar": registra o pedido, GERA a nota fiscal sozinho
+    // (não tem mais campo de nota fiscal pra digitar) e ele já aparece
+    // no topo do histórico.
     public function adicionar(): void
     {
-        acl_exigirPerfil(['garcom']);
+        acl_exigirPerfil(['garçom']);
         if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
             $this->voltar();
         }
 
         $produtoId  = (int)($_POST['produto_id'] ?? 0);
         $quantidade = (int)($_POST['quantidade'] ?? 0);
-        $notaFiscal = trim($_POST['nota_fiscal'] ?? '');
-        if ($notaFiscal !== '') {
-            // mb_substr só existe com a extensão mbstring; sem ela usa substr (o campo já limita a 60 no HTML)
-            $notaFiscal = function_exists('mb_substr') ? mb_substr($notaFiscal, 0, 60) : substr($notaFiscal, 0, 60);
-        } else {
-            $notaFiscal = null;
-        }
 
         if ($produtoId <= 0) {
             $this->voltar('erro', 'Escolha o produto do pedido.');
@@ -60,25 +55,47 @@ class VendaController
             if (!$produto) {
                 $this->voltar('erro', 'Produto não encontrado.');
             }
+            $precoUnitario = (float)($produto['preco'] ?? 0);
 
             // "Hora/Data" vem de <input type="datetime-local"> (ex.: 2026-09-28T14:30); vazio = agora
             $dataPedido      = $this->parseDataHora($_POST['data_pedido'] ?? '') ?? date('Y-m-d H:i:s');
             $horaRecebimento = $this->parseHora($_POST['hora_recebimento'] ?? '');
 
-            $id = (new Venda())->inserir(
-                $produtoId, $produto['nome'], $quantidade, $dataPedido, $horaRecebimento, $notaFiscal
+            $vendaModel = new Venda();
+            $id = $vendaModel->inserir(
+                $produtoId, $produto['nome'], $quantidade, $precoUnitario, $dataPedido, $horaRecebimento
             );
+            $pedido = $vendaModel->buscarPorId($id);
         } catch (PDOException $e) {
-            $this->voltar('erro', 'Não foi possível salvar o pedido. Confira se a migração migracao_pedidos.sql foi executada.');
+            $this->voltar('erro', 'Não foi possível salvar o pedido. Confira se as migrações migracao_pedidos.sql e migracao_nota_fiscal.sql foram executadas.');
         }
 
-        $this->voltar('ok', "Pedido #{$id} registrado no histórico.");
+        $numeroNota = $pedido['nota_fiscal'] ?? '';
+        $this->voltar('ok', "Pedido #{$id} registrado — nota fiscal {$numeroNota} emitida.");
+    }
+
+    // Mostra a nota fiscal de um pedido (visualizar/imprimir)
+    public function notaFiscal(): void
+    {
+        acl_exigirPerfil(['garçom']);
+
+        $id = (int)($_GET['id'] ?? 0);
+        if ($id <= 0) {
+            die("ID inválido.");
+        }
+
+        $pedido = (new Venda())->buscarPorId($id);
+        if (!$pedido) {
+            die("Pedido não encontrado.");
+        }
+
+        require_once __DIR__ . '/../views/nota_fiscal.php';
     }
 
     // Botão "Remover": remove o pedido cujo número foi digitado em "ID Pedido"
     public function remover(): void
     {
-        acl_exigirPerfil(['garcom']);
+        acl_exigirPerfil(['garçom']);
 
         $id = (int)($_POST['id_pedido'] ?? 0);
         if ($id <= 0) {

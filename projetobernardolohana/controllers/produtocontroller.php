@@ -9,7 +9,7 @@ class ProdutoController
     // Tela de Estoque: só listagem (Figma node 2:95)
     public function index(): void
     {
-        acl_exigirPerfil(['garcom']);
+        acl_exigirPerfil(['garçom']);
         $produtoModel = new Produto();
         $produtos = $produtoModel->listarComCategoria(false);
         require_once __DIR__ . '/../views/produtos.php';
@@ -20,7 +20,7 @@ class ProdutoController
     // Com ?id= -> formulário pré-preenchido (edição)
     public function form(): void
     {
-        acl_exigirPerfil(['garcom']);
+        acl_exigirPerfil(['garçom']);
 
         $categoriaModel  = new Categoria1();
         $fornecedorModel = new Fornecedor();
@@ -41,7 +41,7 @@ class ProdutoController
 
     public function salvar(): void
     {
-        acl_exigirPerfil(['garcom']);
+        acl_exigirPerfil(['garçom']);
 
         $id          = (int)($_POST['id'] ?? 0);
         $categoriaId = (int)($_POST['categoria_id'] ?? 0);
@@ -77,7 +77,7 @@ class ProdutoController
 
     public function toggle(): void
     {
-        acl_exigirPerfil(['garcom']);
+        acl_exigirPerfil(['garçom']);
         $id = (int)($_GET['id'] ?? 0);
         $ativo = (int)($_GET['ativo'] ?? 1);
         if ($id <= 0) die("ID inválido.");
@@ -89,7 +89,7 @@ class ProdutoController
 
     public function deletar(): void
     {
-        acl_exigirPerfil(['garcom']);
+        acl_exigirPerfil(['garçom']);
         $id = (int)($_GET['id'] ?? 0);
 
         if ($id <= 0) die("ID inválido.");
