@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 02/10/2026 às 13:13
+-- Tempo de geração: 05/10/2026 às 13:26
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.0.30
 
@@ -276,7 +276,8 @@ ALTER TABLE `movimento_estoque`
 --
 ALTER TABLE `produto`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_produto_categoria` (`categoria_id`);
+  ADD KEY `fk_produto_categoria` (`categoria_id`),
+  ADD KEY `fk_produto_fornecedor` (`fornecedor_id`);
 
 --
 -- Índices de tabela `usuario`
@@ -366,6 +367,29 @@ ALTER TABLE `venda`
 --
 ALTER TABLE `venda_item`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Restrições para tabelas despejadas
+--
+
+--
+-- Restrições para tabelas `entrada_item`
+--
+ALTER TABLE `entrada_item`
+  ADD CONSTRAINT `fk_entrada_item_entrada` FOREIGN KEY (`entrada_id`) REFERENCES `entrada_mercadoria` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Restrições para tabelas `produto`
+--
+ALTER TABLE `produto`
+  ADD CONSTRAINT `fk_produto_categoria` FOREIGN KEY (`categoria_id`) REFERENCES `categoria1` (`id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_produto_fornecedor` FOREIGN KEY (`fornecedor_id`) REFERENCES `fornecedor` (`id`) ON DELETE SET NULL;
+
+--
+-- Restrições para tabelas `venda`
+--
+ALTER TABLE `venda`
+  ADD CONSTRAINT `fk_venda_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id`) ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
