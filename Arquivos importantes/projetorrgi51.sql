@@ -48,20 +48,6 @@ INSERT INTO `categoria1` (`id`, `nome`, `ativo`) VALUES
 -- --------------------------------------------------------
 
 --
--- Estrutura para tabela `entrada_item`
---
-
-CREATE TABLE `entrada_item` (
-  `id` int(11) NOT NULL,
-  `entrada_id` int(11) NOT NULL,
-  `variacao_id` int(11) NOT NULL,
-  `quantidade` int(11) NOT NULL,
-  `custo_unitario` decimal(10,2) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
 -- Estrutura para tabela `entrada_mercadoria`
 --
 
@@ -236,14 +222,6 @@ ALTER TABLE `categoria1`
   ADD PRIMARY KEY (`id`);
 
 --
--- Índices de tabela `entrada_item`
---
-ALTER TABLE `entrada_item`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_entrada_item_entrada` (`entrada_id`),
-  ADD KEY `idx_entrada_item_variacao` (`variacao_id`);
-
---
 -- Índices de tabela `entrada_mercadoria`
 --
 ALTER TABLE `entrada_mercadoria`
@@ -318,12 +296,6 @@ ALTER TABLE `categoria1`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT de tabela `entrada_item`
---
-ALTER TABLE `entrada_item`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT de tabela `entrada_mercadoria`
 --
 ALTER TABLE `entrada_mercadoria`
@@ -374,12 +346,6 @@ ALTER TABLE `venda_item`
 --
 -- Restrições para tabelas despejadas
 --
-
---
--- Restrições para tabelas `entrada_item`
---
-ALTER TABLE `entrada_item`
-  ADD CONSTRAINT `fk_entrada_item_entrada` FOREIGN KEY (`entrada_id`) REFERENCES `entrada_mercadoria` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Restrições para tabelas `produto`
