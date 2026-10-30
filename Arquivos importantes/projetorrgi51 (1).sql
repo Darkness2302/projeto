@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 19/10/2026 às 14:15
+-- Tempo de geração: 30/10/2026 às 14:16
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.0.30
 
@@ -94,7 +94,6 @@ INSERT INTO `fornecedor` (`id`, `nome`, `cpf`, `lugar`, `produtos`, `data_recebi
 (2, 'Percí', '10020058025', 'São Paulo', 'Fruta', '2026-09-28', '15:18:30', 1),
 (3, 'Mao Mao', '2156213562365', 'China', 'Tempero', '2026-09-28', '15:00:13', 1),
 (4, 'Vaneloip', '5522162522352', 'Groelândia', 'Doces', '2026-09-28', '15:04:31', 1),
-(5, 'Quengar', '71717171717171717171', 'Cabuçu', 'Bebidas', '2026-09-28', '15:11:06', 1),
 (6, 'Julinha', '17428727459', 'México', 'Bolo', '2026-09-28', '15:15:54', 1),
 (7, 'Forma de Vida Suprema', '719.852.001-42', 'Espaço(Chaos)', 'Carne(Variada)', '2026-09-28', '15:24:01', 1),
 (8, 'Ogden Ortiz', '570.214.715-64', 'Ogden\'s Retreat', 'Tofu Picante', '2026-10-05', '16:46:52', 1),
@@ -141,7 +140,7 @@ CREATE TABLE `produto` (
 INSERT INTO `produto` (`id`, `categoria_id`, `nome`, `descricao`, `variacao`, `preco`, `estoque_qtd`, `fornecedor_id`, `ativo`) VALUES
 (1, 1, 'Frango com Quiabo', 'Arroz, Frango, Quiabo, Feijão Tropeiro, Angu', 'Tamanho', 30.00, 100, 7, 1),
 (2, 1, 'Frango a milanesa', 'Arroz, Frango empanado, Feijão Preto, Farofa, Salada, Macarrão, Batata Frita', 'Tamanho', 24.50, 200, 7, 1),
-(3, 2, 'Coca Cola', 'Coca Cola.', 'Tamanho/Tipos', 7.50, 300, NULL, 1),
+(3, 2, 'Coca Cola', 'Coca Cola.', 'Tamanho/Tipos', 0.01, 2, NULL, 1),
 (4, 2, 'Água', 'Água sem gás.', 'Água com gás/Água sem gás/Tamanho', 6.00, 200, NULL, 1),
 (6, 1, 'Hámburguer Artesanal', 'Pão, Carne, Queijo, Alface, Tomate, Ketchup.', 'Ingredientes', 24.50, 100, 7, 1),
 (7, 1, 'Churrasco no Espeto', 'Coração, Carne(Picanha) e Linguiça no espeto + Arroz com farofa e Molho á Campanha em pote separado.', 'Tipo/Tamanho', 25.00, 100, 7, 1),
@@ -172,15 +171,6 @@ CREATE TABLE `usuario` (
 -- Despejando dados para a tabela `usuario`
 --
 
-INSERT INTO `usuario` (`id`, `nome`, `email`, `senha`, `perfil`, `ativo`) VALUES
-(1, 'Admin', 'admin@restaurante.com', '$2y$10$vy99TRldnH7xIy6/at451eBFtrWONTnEup3KRKxP9LNBrWS/WnuLm', 'gerente', 1),
-(2, 'Chefe Mario', 'chefe@comida.com', '$2y$10$V7a54RYRJUUjJrciW9KEa.b120fv4NRTXj1KN0FiPpjH2m2zoQisu', 'gerente', 1),
-(3, 'cleitin', 'pcmedio9@3dcolegios.com', '$2y$10$ltpTrG3AlO6haZXCLMdVG.tUYQt1JhoHi.8R2cBPxoj9iaKl6yDQW', 'garçom', 1),
-(4, 'john cena', 'john.cena@gmail.com', '$2y$10$IDstDwfS/Xu626Yobo7vbuxyHErEfg..nL8LALZkvieCj6WIwuzBS', 'garçom', 1),
-(8, 'Joh Pork', 'pcmedio09@gmail.com', '$2y$10$qMdJ8z1370CcCWZWvbZ3DORdQGTJKAxX7qonh5wsy8i0Jd4Uqj0k2', 'cliente', 1),
-(9, 'ASD', 'pcmedio19@gmail.com', '$2y$10$MQLzReBfNTkUqlWL8.H7M.6h9lk7BWvqaKjC0fpxMy76k6EsAEHQO', 'cliente', 1),
-(10, 'assd', 'pcmedio199@gmail.com', '$2y$10$Y7YlrRE7rP0CXOsQgTT0nOPrlYdXO1HHa5hzB4Vy0Jc3bFeG5IKri', 'cliente', 1),
-(11, 'joeol', 'rogerio123@gmail.com', '$2y$10$Pg/nXAeCRjxl4jXAQCJf0uOAlNcp6xnM9gBftCXsDCGt3OmC0/dI6', 'cliente', 1);
 
 -- --------------------------------------------------------
 
@@ -195,20 +185,6 @@ CREATE TABLE `venda` (
   `data` date NOT NULL,
   `status` enum('aberta','finalizada') NOT NULL DEFAULT 'aberta',
   `valor_total` decimal(10,2) NOT NULL DEFAULT 0.00
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Estrutura para tabela `venda_item`
---
-
-CREATE TABLE `venda_item` (
-  `id` int(11) NOT NULL,
-  `venda_id` int(11) NOT NULL,
-  `variacao_id` int(11) NOT NULL,
-  `quantidade` int(11) NOT NULL,
-  `preco_unitario` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -278,14 +254,6 @@ ALTER TABLE `venda`
   ADD KEY `idx_venda_status` (`status`);
 
 --
--- Índices de tabela `venda_item`
---
-ALTER TABLE `venda_item`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_venda_item_venda` (`venda_id`),
-  ADD KEY `idx_venda_item_variacao` (`variacao_id`);
-
---
 -- AUTO_INCREMENT para tabelas despejadas
 --
 
@@ -329,18 +297,12 @@ ALTER TABLE `produto`
 -- AUTO_INCREMENT de tabela `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT de tabela `venda`
 --
 ALTER TABLE `venda`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT de tabela `venda_item`
---
-ALTER TABLE `venda_item`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
