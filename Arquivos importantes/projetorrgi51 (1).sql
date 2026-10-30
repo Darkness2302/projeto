@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Tempo de geração: 30/10/2026 às 14:16
+-- Tempo de geração: 30/10/2026 às 15:40
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.0.30
 
@@ -171,6 +171,15 @@ CREATE TABLE `usuario` (
 -- Despejando dados para a tabela `usuario`
 --
 
+INSERT INTO `usuario` (`id`, `nome`, `email`, `senha`, `perfil`, `ativo`) VALUES
+(1, 'Admin', 'admin@restaurante.com', '$2y$10$vy99TRldnH7xIy6/at451eBFtrWONTnEup3KRKxP9LNBrWS/WnuLm', 'gerente', 1),
+(2, 'Chefe Mario', 'chefe@comida.com', '$2y$10$V7a54RYRJUUjJrciW9KEa.b120fv4NRTXj1KN0FiPpjH2m2zoQisu', 'gerente', 1),
+(3, 'cleitin', 'pcmedio9@3dcolegios.com', '$2y$10$ltpTrG3AlO6haZXCLMdVG.tUYQt1JhoHi.8R2cBPxoj9iaKl6yDQW', 'garçom', 1),
+(4, 'john cena', 'john.cena@gmail.com', '$2y$10$IDstDwfS/Xu626Yobo7vbuxyHErEfg..nL8LALZkvieCj6WIwuzBS', 'garçom', 1),
+(9, 'ASD', 'pcmedio19@gmail.com', '$2y$10$MQLzReBfNTkUqlWL8.H7M.6h9lk7BWvqaKjC0fpxMy76k6EsAEHQO', 'cliente', 1),
+(10, 'assd', 'pcmedio199@gmail.com', '$2y$10$Y7YlrRE7rP0CXOsQgTT0nOPrlYdXO1HHa5hzB4Vy0Jc3bFeG5IKri', 'cliente', 1),
+(11, 'joeol', 'rogerio123@gmail.com', '$2y$10$Pg/nXAeCRjxl4jXAQCJf0uOAlNcp6xnM9gBftCXsDCGt3OmC0/dI6', 'cliente', 1),
+(12, 'jossa', 'pcmedio09@3dcolegios.com', '$2y$10$y7UmpOZIyvJi2DqyTjUbJu.XzBQhWEtQWH0EFXugk.U.vSqYwONPK', 'cliente', 1);
 
 -- --------------------------------------------------------
 
