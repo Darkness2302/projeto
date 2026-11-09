@@ -50,10 +50,7 @@
         <button type="submit" class="btn-entrar">Entrar</button>
       </form>
 
-      <div class="signup-prompt">
-        Não possui conta?
-        <a href="index.php?controller=usuario&action=create">Clique aqui para cadastrar-se.</a>
-      </div>
+      
     </div>
   </div>
 

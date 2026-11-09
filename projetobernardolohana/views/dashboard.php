@@ -73,6 +73,7 @@ $categoriasProdutos = $categoriasProdutos ?? [];
   </header>
 
   <div class="hero">
+        
     <img class="hero-img" src="public/uploads/img/60 4 1.png" alt="Prato" />
     <img class="hero-img" src="public/uploads/img/60 1 1.png" alt="Prato" />
     <img class="hero-img" src="public/uploads/img/60 3 1.png" alt="Prato" />
