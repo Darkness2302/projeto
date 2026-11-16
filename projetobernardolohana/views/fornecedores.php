@@ -34,7 +34,7 @@ function recebimentoFormatado(?string $data, ?string $hora): string
 
   <header class="site-header">
     <img class="header-logo"
-      src="public/uploads/img/Cópia de R.P.Q. Logo (2) 4.png"
+      src="public/uploads/img/logo-panela-quente.png"
       alt="Restaurante Panela Quente" />
     <div class="header-right">
       <h1 class="header-title">Lista dos Fornecedores Atuais:</h1>
@@ -42,7 +42,11 @@ function recebimentoFormatado(?string $data, ?string $hora): string
         <?php if (acl_podeVer('dashboard')): ?><a href="index.php?controller=auth&action=dashboard">Menu</a><?php endif; ?>
         <a href="index.php?controller=fornecedor&action=index" class="active">Fornecedores</a>
         <?php if (acl_podeVer('produto')): ?><a href="index.php?controller=produto&action=index">Estoque</a><?php endif; ?>
+        <?php if (acl_podeVer('funcionario')): ?>
+          <a href="index.php?controller=funcionario&action=index">Funcionários</a>
+        <?php endif; ?>
         <?php if (acl_podeVer('venda')): ?><a href="index.php?controller=venda&action=index">Pedidos</a><?php endif; ?>
+        <?php if (acl_podeVer('empresa')): ?><a href="index.php?controller=empresa&action=index">Empresa</a><?php endif; ?>
       </nav>
     </div>
   </header>
@@ -76,6 +80,16 @@ function recebimentoFormatado(?string $data, ?string $hora): string
           <label class="field-label" for="f-produtos">Produtos</label>
           <input id="f-produtos" type="text" name="produtos" placeholder="Produtos"
                  value="<?= $editar ? htmlspecialchars($editar['produtos'] ?? '') : '' ?>">
+        </div>
+        <div class="field-badge fb-data-rec">
+          <label class="field-label" for="f-data-rec">Data do recebimento</label>
+          <input id="f-data-rec" type="date" name="data_recebimento"
+                 value="<?= $editar && !empty($editar['data_recebimento']) ? htmlspecialchars($editar['data_recebimento']) : date('Y-m-d') ?>">
+        </div>
+        <div class="field-badge fb-hora-rec">
+          <label class="field-label" for="f-hora-rec">Hora do recebimento</label>
+          <input id="f-hora-rec" type="time" name="hora_recebimento"
+                 value="<?= $editar && !empty($editar['hora_recebimento']) ? htmlspecialchars(substr($editar['hora_recebimento'], 0, 5)) : date('H:i') ?>">
         </div>
         <div class="field-badge fb-lugar">
           <label class="field-label" for="f-lugar">Lugar</label>
@@ -159,5 +173,6 @@ function recebimentoFormatado(?string $data, ?string $hora): string
     });
   </script>
 
+  <script src="public/assets/js/cep.js"></script>
 </body>
 </html>

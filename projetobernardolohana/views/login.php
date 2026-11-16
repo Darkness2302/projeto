@@ -13,7 +13,7 @@
 
   <header class="site-header">
     <img class="header-logo"
-      src="public/uploads/img/Cópia de R.P.Q. Logo (2) 4.png"
+      src="public/uploads/img/logo-panela-quente.png"
       alt="Restaurante Panela Quente" />
     <div class="header-titles">
       <h1>Bem-vindo ao sistema do Panela Quente!</h1>
@@ -50,7 +50,10 @@
         <button type="submit" class="btn-entrar">Entrar</button>
       </form>
 
-      
+      <div class="signup-prompt">
+        Não possui conta?
+        <a href="index.php?controller=usuario&action=create">Clique aqui para cadastrar-se.</a>
+      </div>
     </div>
   </div>
 

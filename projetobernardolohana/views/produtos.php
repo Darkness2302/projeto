@@ -32,7 +32,7 @@ function precoFormatado(?float $preco): string
 
   <header class="site-header">
     <img class="header-logo"
-      src="public/uploads/img/Cópia de R.P.Q. Logo (2) 4.png"
+      src="public/uploads/img/logo-panela-quente.png"
       alt="Restaurante Panela Quente" />
     <div class="header-right">
       <h1 class="header-title">
@@ -41,8 +41,11 @@ function precoFormatado(?float $preco): string
       <nav class="nav-pills">
         <?php if (acl_podeVer('dashboard')): ?><a href="index.php?controller=auth&action=dashboard">Menu</a><?php endif; ?>
         <?php if (acl_podeVer('fornecedor')): ?><a href="index.php?controller=fornecedor&action=index">Fornecedores</a><?php endif; ?>
+        <?php if (acl_podeVer('funcionario')): ?><a href="index.php?controller=funcionario&action=index">Funcionários</a><?php endif; ?>
         <a href="index.php?controller=produto&action=index" class="active">Estoque</a>
+        <a href="index.php?controller=produto&action=movimentos">Movimentações</a>
         <?php if (acl_podeVer('venda')): ?><a href="index.php?controller=venda&action=index">Pedidos</a><?php endif; ?>
+        <?php if (acl_podeVer('empresa')): ?><a href="index.php?controller=empresa&action=index">Empresa</a><?php endif; ?>
       </nav>
     </div>
   </header>
@@ -75,7 +78,11 @@ function precoFormatado(?float $preco): string
           </div>
 
           <div class="badge badge-nome"><?= htmlspecialchars($p['nome']) ?></div>
-          <div class="badge badge-estoque">Estoque: <?= (int)($p['estoque_qtd'] ?? 0) ?> un.</div>
+          <?php
+            $estoqueQtd = (int)($p['estoque_qtd'] ?? 0);
+            $classeEstoque = $estoqueQtd <= 0 ? 'estoque-zero' : ($estoqueQtd <= 10 ? 'estoque-baixo' : '');
+          ?>
+          <div class="badge badge-estoque <?= $classeEstoque ?>">Estoque: <?= $estoqueQtd ?> un.</div>
 
           <div class="badge badge-status <?= (int)$p['ativo'] === 1 ? 'ativo' : 'inativo' ?>">
             <?= (int)$p['ativo'] === 1 ? 'Ativo' : 'Inativo' ?>

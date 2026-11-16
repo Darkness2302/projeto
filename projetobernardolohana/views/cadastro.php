@@ -13,7 +13,7 @@
 
   <header class="site-header">
     <img class="header-logo"
-      src="public/uploads/img/Cópia de R.P.Q. Logo (2) 4.png"
+      src="public/uploads/img/logo-panela-quente.png"
       alt="Restaurante Panela Quente" />
     <div class="header-titles">
       <h1>Bem-vindo(a) ao Sistema do Panela Quente</h1>

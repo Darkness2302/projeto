@@ -24,22 +24,11 @@ switch ($controller) {
         break;
 
 
-    case 'entrada':
-        require_once __DIR__ . '/controllers/entradacontroller.php';
-        $c = new EntradaController();
-        break;
-
-
     case 'venda':
         require_once __DIR__ . '/controllers/vendacontroller.php';
         $c = new VendaController();
         break;
 
-
-    case 'relatorio':
-        require_once __DIR__ . '/controllers/relatoriocontroller.php';
-        $c = new RelatorioController();
-        break;
 
     case 'usuario':
         require_once __DIR__ . '/controllers/usuariocontroller.php';
@@ -53,6 +42,21 @@ switch ($controller) {
     case 'fornecedor':
         require_once __DIR__ . '/controllers/fornecedorcontroller.php';
         $c = new FornecedorController();
+        break;
+
+    case 'funcionario':
+        require_once __DIR__ . '/controllers/funcionariocontroller.php';
+        $c = new FuncionarioController();
+        break;
+
+    case 'pedido':
+        require_once __DIR__ . '/controllers/pedidocontroller.php';
+        $c = new PedidoController();
+        break;
+
+    case 'empresa':
+        require_once __DIR__ . '/controllers/empresacontroller.php';
+        $c = new EmpresaController();
         break;
 
 

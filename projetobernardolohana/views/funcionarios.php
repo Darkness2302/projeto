@@ -157,5 +157,6 @@ function expedienteFormatado(?string $inicio, ?string $fim): string
     <?php endif; ?>
   </div>
 
+  <script src="public/assets/js/cep.js"></script>
 </body>
 </html>

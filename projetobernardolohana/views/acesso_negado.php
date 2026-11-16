@@ -11,7 +11,7 @@
 </head>
 <body data-page="acesso-negado">
   <div class="box">
-    <img src="public/uploads/img/Cópia de R.P.Q. Logo (2) 4.png" alt="Panela Quente">
+    <img src="public/uploads/img/logo-panela-quente.png" alt="Panela Quente">
     <h1>Acesso não disponível para o seu perfil</h1>
     <p>Seu perfil atual (<strong><?= htmlspecialchars($perfil) ?></strong>) não tem acesso a esta página.</p>
     <a href="index.php?controller=auth&action=dashboard">Voltar ao início</a>

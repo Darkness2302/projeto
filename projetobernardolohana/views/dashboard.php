@@ -6,7 +6,7 @@ function imagemProdutoDashboard(int $produtoId): string
 {
     $baseFs  = __DIR__ . "/../public/uploads/produtos/";
     $baseUrl = "public/uploads/produtos/";
-    foreach (['jpg', 'png', 'webp'] as $ext) {
+    foreach (['jpg', 'jpeg', 'png', 'webp', 'avif', 'jfif'] as $ext) {
         if (file_exists($baseFs . $produtoId . '.' . $ext)) {
             return $baseUrl . $produtoId . '.' . $ext;
         }
@@ -46,7 +46,7 @@ $categoriasProdutos = $categoriasProdutos ?? [];
   <header>
     <div class="page-header">
       <div class="logo-wrap">
-        <img src="public/uploads/img/Cópia de R.P.Q. Logo (2) 4.png"
+        <img src="public/uploads/img/logo-panela-quente.png"
              alt="Restaurante Panela Quente" />
       </div>
       <div class="header-center">
@@ -63,22 +63,46 @@ $categoriasProdutos = $categoriasProdutos ?? [];
       <?php if (acl_podeVer('fornecedor')): ?>
         <a href="index.php?controller=fornecedor&action=index">Fornecedores</a>
       <?php endif; ?>
+        <?php if (acl_podeVer('funcionario')): ?>
+          <a href="index.php?controller=funcionario&action=index">Funcionários</a>
+        <?php endif; ?>
       <?php if (acl_podeVer('produto')): ?>
         <a href="index.php?controller=produto&action=index">Estoque</a>
       <?php endif; ?>
       <?php if (acl_podeVer('venda')): ?>
         <a href="index.php?controller=venda&action=index">Pedidos</a>
       <?php endif; ?>
+      <?php if (acl_podeVer('empresa')): ?>
+        <a href="index.php?controller=empresa&action=index">Empresa</a>
+      <?php endif; ?>
     </nav>
   </header>
 
   <div class="hero">
-        
     <img class="hero-img" src="public/uploads/img/60 4 1.png" alt="Prato" />
     <img class="hero-img" src="public/uploads/img/60 1 1.png" alt="Prato" />
     <img class="hero-img" src="public/uploads/img/60 3 1.png" alt="Prato" />
     <img class="hero-img" src="public/uploads/img/60 2 1.png" alt="Prato" />
   </div>
+
+  <?php if ($perfil === 'cliente'): ?>
+    <?php if (!empty($flashCliente)): ?>
+      <div class="cli-flash cli-flash-<?= htmlspecialchars($flashCliente['tipo']) ?>"><?= htmlspecialchars($flashCliente['msg']) ?></div>
+    <?php endif; ?>
+    <div class="cli-bar">
+      <span class="cli-bar-texto">Toque em <strong>Adicionar</strong> nos pratos para montar seu pedido. <strong>Peça 7 ou mais itens e ganhe 10% de desconto!</strong></span>
+      <a class="cli-btn" href="index.php?controller=pedido&action=carrinho">Ver meu pedido (<?= (int)$carrinhoQtd ?>)</a>
+      <a class="cli-btn cli-btn-sec" href="index.php?controller=pedido&action=meus">Meus pedidos</a>
+    </div>
+  <?php endif; ?>
+
+  <?php if ($admin): ?>
+    <div class="adm-bar">
+      <span class="adm-titulo">Gerenciar cardápio</span>
+      <a class="adm-btn" href="index.php?controller=produto&action=form&voltar=cardapio">+ Novo produto</a>
+      <a class="adm-btn adm-btn-sec" href="index.php?controller=produto&action=index">Abrir Estoque</a>
+    </div>
+  <?php endif; ?>
 
   <?php if (empty($categoriasProdutos)): ?>
     <div class="empty-cardapio">Nenhum produto disponível no momento. Volte em breve!</div>
@@ -92,13 +116,50 @@ $categoriasProdutos = $categoriasProdutos ?? [];
         <div class="carousel-viewport">
           <div class="carousel-track">
             <?php foreach ($cat['produtos'] as $p): ?>
-              <div class="product-card">
+              <?php $oculto = (int)$p['ativo'] !== 1; ?>
+              <div class="product-card<?= $admin && $oculto ? ' is-oculto' : '' ?>">
                 <img class="product-card__img"
                      src="<?= htmlspecialchars(imagemProdutoDashboard((int)$p['id'])) ?>"
-                     alt="<?= htmlspecialchars($p['nome']) ?>" loading="lazy" decoding="async" />
+                     alt="<?= htmlspecialchars($p['nome']) ?>" loading="lazy" decoding="async"
+                     onerror="this.onerror=null;this.src='public/assets/img/produto_sem_foto.png';" />
                 <span class="product-card__label"><?= htmlspecialchars($p['nome']) ?></span>
+                <?php if (!$admin): ?>
+                  <?php $opts = $variacoesPorProduto[(int)$p['id']] ?? []; ?>
+                  <?php if ((int)($p['estoque_qtd'] ?? 0) <= 0): ?>
+                    <span class="cli-esgotado">Esgotado</span>
+                  <?php else: ?>
+                  <form class="cli-add" method="post" action="index.php?controller=pedido&action=adicionar">
+                    <input type="hidden" name="produto_id" value="<?= (int)$p['id'] ?>">
+                    <?php if ($opts): ?>
+                      <select name="variacao_id" required aria-label="Variação de <?= htmlspecialchars($p['nome']) ?>">
+                        <option value="">Escolha a variação...</option>
+                        <?php foreach ($opts as $o): ?>
+                          <option value="<?= (int)$o['id'] ?>"><?= htmlspecialchars($o['nome']) ?> — R$ <?= number_format((float)$o['preco'], 2, ',', '.') ?></option>
+                        <?php endforeach; ?>
+                      </select>
+                    <?php else: ?>
+                      <span class="cli-preco">R$ <?= number_format((float)$p['preco'], 2, ',', '.') ?></span>
+                    <?php endif; ?>
+                    <button type="submit" class="cli-btn">Adicionar</button>
+                  </form>
+                  <?php endif; ?>
+                <?php endif; ?>
+                <?php if ($admin): ?>
+                  <div class="adm-actions">
+                    <?php if ($oculto): ?><span class="adm-tag">Oculto</span><?php endif; ?>
+                    <a class="adm-btn" href="index.php?controller=produto&action=form&id=<?= (int)$p['id'] ?>&voltar=cardapio">Editar</a>
+                    <a class="adm-btn adm-btn-sec" href="index.php?controller=produto&action=toggle&id=<?= (int)$p['id'] ?>&ativo=<?= $oculto ? 1 : 0 ?>&voltar=cardapio"><?= $oculto ? 'Mostrar' : 'Ocultar' ?></a>
+                  </div>
+                <?php endif; ?>
               </div>
             <?php endforeach; ?>
+
+            <?php if ($admin): ?>
+              <a class="product-card adm-add" href="index.php?controller=produto&action=form&categoria_id=<?= (int)$catId ?>&voltar=cardapio">
+                <span class="adm-add-mais">+</span>
+                <span class="adm-add-texto">Adicionar produto em <?= htmlspecialchars($cat['nome']) ?></span>
+              </a>
+            <?php endif; ?>
           </div>
         </div>
         <button type="button" class="car-arrow car-next" aria-label="Próximo produto">&#8594;</button>
@@ -136,7 +197,7 @@ $categoriasProdutos = $categoriasProdutos ?? [];
         </div>
       </div>
       <div class="footer-logo-wrap">
-        <img src="public/uploads/img/Cópia de R.P.Q. Logo (2) 4.png" alt="Restaurante Panela Quente" />
+        <img src="public/uploads/img/logo-panela-quente.png" alt="Restaurante Panela Quente" />
       </div>
     </div>
   </footer>

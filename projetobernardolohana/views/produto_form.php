@@ -31,7 +31,7 @@ $titulo      = $editar ? 'Editando Produto #' . $produtoId : 'Adicionando Produt
 
   <header class="site-header">
     <img class="header-logo"
-      src="public/uploads/img/Cópia de R.P.Q. Logo (2) 4.png"
+      src="public/uploads/img/logo-panela-quente.png"
       alt="Restaurante Panela Quente" />
     <h1 class="header-title"><?= htmlspecialchars($titulo) ?></h1>
   </header>
@@ -40,6 +40,7 @@ $titulo      = $editar ? 'Editando Produto #' . $produtoId : 'Adicionando Produt
 
   <div class="form-wrap">
     <form method="post" action="index.php?controller=produto&action=salvar" enctype="multipart/form-data">
+    <input type="hidden" name="voltar" value="<?= htmlspecialchars($_GET['voltar'] ?? '') ?>">
       <input type="hidden" name="id" value="<?= $produtoId ?? 0 ?>">
 
       <div class="top-grid">
@@ -65,7 +66,7 @@ $titulo      = $editar ? 'Editando Produto #' . $produtoId : 'Adicionando Produt
               <option value="">Categoria...</option>
               <?php foreach ($categorias as $c): ?>
                 <option value="<?= (int)$c['id'] ?>"
-                  <?= $editar && (int)$editar['categoria_id'] === (int)$c['id'] ? 'selected' : '' ?>>
+                  <?= (int)($editar['categoria_id'] ?? $_GET['categoria_id'] ?? 0) === (int)$c['id'] ? 'selected' : '' ?>>
                   <?= htmlspecialchars($c['nome']) ?>
                 </option>
               <?php endforeach; ?>
@@ -129,11 +130,32 @@ $titulo      = $editar ? 'Editando Produto #' . $produtoId : 'Adicionando Produt
       </div>
 
       <div class="form-actions">
-        <a class="btn-voltar" href="index.php?controller=produto&action=index">Voltar</a>
+        <a class="btn-voltar" href="<?= ($_GET['voltar'] ?? '') === 'cardapio' ? 'index.php?controller=auth&action=dashboard' : 'index.php?controller=produto&action=index' ?>">Voltar</a>
         <button type="submit" class="btn-salvar">Salvar</button>
       </div>
     </form>
   </div>
+
+  <?php if ($editar): ?>
+  <div class="var-box">
+    <div class="var-titulo">Opções de variação<?= !empty($editar['variacao']) ? ' (' . htmlspecialchars($editar['variacao']) . ')' : '' ?></div>
+    <p class="var-ajuda">Cada opção tem preço próprio. Se o produto não tiver opções, o pedido usa o preço do produto.</p>
+    <?php foreach ($variacoes as $v): ?>
+      <div class="var-linha">
+        <span><?= htmlspecialchars($v['nome']) ?> — R$ <?= number_format((float)$v['preco'], 2, ',', '.') ?></span>
+        <a class="btn-remover-var" href="index.php?controller=produto&action=variacaoDeletar&id=<?= (int)$v['id'] ?>&produto_id=<?= (int)$editar['id'] ?>"
+           onclick="return confirm('Remover esta opção?')">Remover</a>
+      </div>
+    <?php endforeach; ?>
+    <form method="post" action="index.php?controller=produto&action=variacaoSalvar" class="var-form">
+      <input type="hidden" name="produto_id" value="<?= (int)$editar['id'] ?>">
+      <input type="hidden" name="voltar" value="<?= htmlspecialchars($_GET['voltar'] ?? '') ?>">
+      <input type="text" name="nome_variacao" required placeholder="Nome (ex.: M)" maxlength="60">
+      <input type="text" name="preco_variacao" required placeholder="Preço (ex.: 32,00)">
+      <button type="submit" class="btn-salvar">Adicionar opção</button>
+    </form>
+  </div>
+  <?php endif; ?>
 
   <script>
     // Pré-visualização da imagem escolhida, antes de salvar
