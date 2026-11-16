@@ -46,10 +46,28 @@ function acl_podeVer(string $pagina): bool
     $perfil = $_SESSION['perfil'] ?? '';
     if ($perfil === 'gerente') return true;
     $mapa = [
-        'dashboard'   => ['cliente'],
+        'dashboard'   => ['cliente', 'garçom'],
         'fornecedor'  => [],              // gestão de fornecedores: só gerente (ver nota na entrega)
         'produto'     => ['garçom'],
         'venda'       => ['garçom'],
+        'funcionario' => [],              // gestão de funcionários (garçons): só gerente
+        'empresa'     => [],              // config. de CNPJ/lugar da nota fiscal: só gerente
     ];
     return in_array($perfil, $mapa[$pagina] ?? [], true);
+}
+
+/**
+ * Normaliza o perfil vindo do banco. Aceita "garçom" com ç correto, sem acento
+ * ("garcom") ou com texto de encoding trocado ("garÃ§om"), para o acesso do
+ * garçom não depender de como o cadastro foi feito.
+ */
+function acl_normalizarPerfil(string $perfil): string
+{
+    $p = mb_strtolower(trim($perfil), 'UTF-8');
+    if (strpos($p, 'gar') === 0 && strpos($p, 'om') !== false) {
+        return 'garçom';
+    }
+    if (strpos($p, 'gerente') !== false) return 'gerente';
+    if (strpos($p, 'cliente') !== false) return 'cliente';
+    return $p;
 }

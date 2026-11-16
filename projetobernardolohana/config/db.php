@@ -7,7 +7,7 @@ class Database
         if (self::$conn === null) {
             try {
                 self::$conn=new PDO(
-                    "mysql:host=localhost;dbname=projetorrgi51;charstet=utf8mb4",
+                    "mysql:host=localhost;dbname=projetorrgi51;charset=utf8mb4",
                     "root",
                     "",
                     [

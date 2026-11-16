@@ -36,12 +36,20 @@ class FornecedorController
             die("Nome do fornecedor é obrigatório.");
         }
 
-        // Registra automaticamente a data/hora deste recebimento/atualização,
-        // exibida no card como "Hora de chegada dos produtos - Hora do recebimento (DATA)"
-        $dataRecebimento = date('Y-m-d');
-        $horaRecebimento = date('H:i:s');
+        // Data/hora do recebimento: podem ser informadas pelo usuário.
+        // Se ficarem em branco, ao criar usa agora; ao editar mantém o valor atual.
+        $dataPost = trim($_POST['data_recebimento'] ?? '');
+        $horaPost = trim($_POST['hora_recebimento'] ?? '');
+        $dataValida = preg_match('/^\d{4}-\d{2}-\d{2}$/', $dataPost) === 1;
+        $horaValida = preg_match('/^\d{2}:\d{2}(:\d{2})?$/', $horaPost) === 1;
 
         $fornecedorModel = new Fornecedor();
+        $atual = $id > 0 ? $fornecedorModel->buscarPorId($id) : null;
+        $dataRecebimento = $dataValida ? $dataPost : ($atual['data_recebimento'] ?? date('Y-m-d'));
+        $horaRecebimento = $horaValida ? (strlen($horaPost) === 5 ? $horaPost . ':00' : $horaPost) : ($atual['hora_recebimento'] ?? date('H:i:s'));
+        if ($id === 0 && !$dataValida) $dataRecebimento = date('Y-m-d');
+        if ($id === 0 && !$horaValida) $horaRecebimento = date('H:i:s');
+
         if ($id > 0) {
             $fornecedorModel->atualizar($id, $nome, $cpf, $lugar, $produtos, $dataRecebimento, $horaRecebimento);
             $this->salvarLogoDoFornecedor($id);

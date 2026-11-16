@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../models/usuario.php';
 require_once __DIR__ . '/../models/produto.php';
+require_once __DIR__ . '/../models/produtovariacao.php';
 require_once __DIR__ . '/../models/categoria.php';
 require_once __DIR__ . '/../helpers/acl.php';
 class AuthController
@@ -23,21 +24,22 @@ die("Senha inválida.");
 }
 // sessão
 $_SESSION['usuario_id'] = $user['id'];
-$_SESSION['perfil'] = $user['perfil'];
+$_SESSION['perfil'] = acl_normalizarPerfil((string)$user['perfil']);
 $_SESSION['nome'] = $user['nome'];
 header("Location: index.php?controller=auth&action=dashboard");
 exit;
 }
 public function dashboard()
 {
-    acl_exigirPerfil(['cliente']);
+    acl_exigirPerfil(['cliente', 'garçom']);
+    // Gerente e garçom gerenciam o cardápio: veem também os produtos ocultos e
+    // categorias sem produtos (para poder adicionar). Cliente vê só o ativo.
+    $admin = in_array($_SESSION['perfil'] ?? '', ['gerente', 'garçom'], true);
 
-    // Agrupa produtos ativos por categoria (mesma lógica usada no Estoque),
-    // para o cardápio virar um carrossel de verdade em vez de 3 fotos fixas.
-    $categoriaModel = new Categoria1();
-    $produtoModel   = new Produto();
+    $categoriaModel   = new Categoria1();
+    $produtoModel     = new Produto();
     $categoriasAtivas = $categoriaModel->listarAtivas();
-    $todosProdutos    = $produtoModel->listarComCategoria(true);
+    $todosProdutos    = $produtoModel->listarComCategoria(!$admin);
 
     $categoriasProdutos = [];
     foreach ($categoriasAtivas as $cat) {
@@ -48,11 +50,23 @@ public function dashboard()
             $categoriasProdutos[$p['categoria_id']]['produtos'][] = $p;
         }
     }
-    // remove categorias sem nenhum produto ativo (não faz sentido mostrar carrossel vazio)
-    $categoriasProdutos = array_filter($categoriasProdutos, fn($c) => count($c['produtos']) > 0);
+    if (!$admin) {
+        // cliente: não faz sentido mostrar carrossel vazio
+        $categoriasProdutos = array_filter($categoriasProdutos, fn($c) => count($c['produtos']) > 0);
+    }
+
+    // Opções de variação por produto (para o cliente escolher ao pedir)
+    $variacoesPorProduto = [];
+    foreach ((new ProdutoVariacao())->listarAtivas() as $v) {
+        $variacoesPorProduto[(int)$v['produto_id']][] = $v;
+    }
+    $carrinhoQtd = array_sum(array_column($_SESSION['carrinho'] ?? [], 'quantidade'));
+    $flashCliente = $_SESSION['flash_cliente'] ?? null;
+    unset($_SESSION['flash_cliente']);
 
     require_once __DIR__ . '/../views/dashboard.php';
 }
+
 public function logout()
 {
 session_destroy();
