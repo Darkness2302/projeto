@@ -21,7 +21,6 @@ Aplicação web em **PHP** estruturada no padrão **MVC** com controlo de acesso
 
 ```text
 projetobernardolohana/
-├── Arquivos importantes/     # Schemas SQL, dump e scripts de migração
 ├── config/                   # Configuração da base de dados (db.php)
 ├── controllers/              # Controladores (auth, produto, venda, pedido, etc.)
 ├── helpers/                  # Funções auxiliares e ACL (acl.php)
